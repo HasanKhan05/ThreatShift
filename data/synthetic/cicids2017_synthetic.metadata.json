@@ -1,0 +1,31 @@
+{
+  "csv_sha256": "112ff2ccb8e0dca76d5caaa8c210f0842163439db350d9e712d059bac22e3d40",
+  "defective_row_count": 44,
+  "feature_columns": [
+    "Flow Duration",
+    "Total Fwd Packets",
+    "Total Backward Packets",
+    "Total Length of Fwd Packets",
+    "Total Length of Bwd Packets",
+    "Fwd Packet Length Mean",
+    "Bwd Packet Length Mean",
+    "Flow Bytes/s",
+    "Flow Packets/s",
+    "Flow IAT Mean",
+    "SYN Flag Count",
+    "ACK Flag Count",
+    "Down/Up Ratio",
+    "Average Packet Size",
+    "Idle Mean",
+    "Active Mean"
+  ],
+  "generator": "data.synthetic.generate_synthetic_cicids2017",
+  "intended_clean_retained_rows": 12000,
+  "is_synthetic": true,
+  "limitations": [
+    "Not derived from or an exact replica of CIC-IDS2017.",
+    "Do not cite model metrics from this data as CIC-IDS2017 results.",
+    "Validation against official CIC-IDS2017 CSV files remains pending."
+  ],
+  "seed": 1729
+}

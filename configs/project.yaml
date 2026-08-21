@@ -1,0 +1,14 @@
+project:
+  name: Cyberattack Detection Using Machine Learning
+  python_requires: ">=3.11"
+dataset:
+  primary: CIC-IDS2017
+task:
+  name: binary_benign_vs_attack
+  negative_label: BENIGN
+  positive_label: ATTACK
+paths:
+  raw_data_dir: data/raw
+  artifacts_dir: artifacts
+reproducibility:
+  seeds: [1729, 2718, 3141]

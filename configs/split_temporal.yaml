@@ -1,0 +1,11 @@
+# Within-dataset temporal-shift protocol; never a claim of zero-day detection.
+split:
+  kind: temporal
+  target_column: target
+  id_column: row_id
+  temporal_column: split_day
+  validation_day_count: 1
+  test_day_count: 1
+  direction: earlier_capture_days_train_then_later_validation_then_latest_test
+  metadata_rule: split_day_is_manifest_only_never_model_feature
+  selection_rule: validation_only_for_threshold_calibration_and_tuning

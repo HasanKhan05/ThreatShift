@@ -1,0 +1,18 @@
+# Python environments and tooling caches
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Licensed/private source data and derived experiment outputs
+/data/raw/
+/data/interim/
+/data/processed/
+/artifacts/
+
+# Local environment files
+.env
+.env.*
+!.env.example

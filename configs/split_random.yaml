@@ -1,0 +1,10 @@
+# Ordinary benchmark protocol. This is fixed before model fitting and reused by every model.
+split:
+  kind: random
+  seed: 1729
+  target_column: target
+  id_column: row_id
+  validation_fraction: 0.20
+  test_fraction: 0.20
+  class_constraint: every_partition_contains_benign_and_attack
+  selection_rule: validation_only_for_threshold_calibration_and_tuning

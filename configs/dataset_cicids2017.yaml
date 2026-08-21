@@ -1,0 +1,20 @@
+# The raw files remain local under data/raw/ and are never copied by this pipeline.
+dataset:
+  label_column: Label
+  benign_label: BENIGN
+  attack_label: ATTACK
+  output_dir: data/processed/cicids2017
+  nonfinite_policy: drop_rows
+  temporal_metadata:
+    source_column: Timestamp
+    output_column: split_day
+    usage: manifest_only_never_model_feature
+  forbidden_feature_columns:
+    - Flow ID
+    - Source IP
+    - Destination IP
+    - Timestamp
+    - Attack Category
+    - Attack Type
+    - Source Filename
+    - Capture Day
