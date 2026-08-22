@@ -1,0 +1,22 @@
+{
+  "artifact_version": 1,
+  "purpose": "Fixed UI demonstrations replayed from redacted saved scores; no live network traffic is scored.",
+  "examples": [
+    {
+      "id": "attack-like-example",
+      "title": "Saved attack-like research example",
+      "split_kind": "random",
+      "record_index": 0,
+      "reference_target": "ATTACK",
+      "binding_note": "Zero-based row index in each saved random-protocol analysis_scored_records.csv file. The UI validates the saved target before displaying results."
+    },
+    {
+      "id": "benign-example",
+      "title": "Saved benign research example",
+      "split_kind": "random",
+      "record_index": 2,
+      "reference_target": "BENIGN",
+      "binding_note": "Zero-based row index in each saved random-protocol analysis_scored_records.csv file. The UI validates the saved target before displaying results."
+    }
+  ]
+}

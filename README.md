@@ -39,3 +39,14 @@ Raw data and generated artifacts are intended to remain local and ignored by ver
 Phases 0 (foundation) and 1 (data readiness) are complete under the revised Phase 0–2 cycle-review/commit cadence. Phase 2 (evaluation protocol) is complete on synthetic development data and awaits the same cycle gate; see `PROGRESS_TRACKER.md` for release fields.
 
 The current development fixture is synthetic. It exercises ingestion, cleaning, manifests, and preprocessing mechanics, but is not derived from or equivalent to CIC-IDS2017. It must not be presented as CIC-IDS2017 data or used to make CIC-IDS2017 result claims. No model results or performance metrics are reported here.
+
+## Local dashboard demo
+
+With a saved artifact directory available locally, run the artifact-only Streamlit dashboard:
+
+```powershell
+$env:CYBERATTACK_ARTIFACT_ROOT = (Resolve-Path "artifacts/phase5-synthetic-smoke-final/test_frozen_analysis_writes_re0/artifacts/phase5-synthetic-contract-2eaf949e051c")
+uv run --frozen streamlit run src/app/app.py
+```
+
+See `demo/run_demo.md` for the research-only demo script and limitations.
