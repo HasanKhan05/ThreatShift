@@ -27,10 +27,24 @@ from .ledger import append_ledger_row
 from .metrics import EvaluationResult, evaluate_predictions, select_threshold
 
 _PRIMARY_MODEL_NAMES = frozenset({"majority", "logistic_regression", "random_forest", "mlp"})
-_LIMITATIONS = (
-    "Synthetic development data only; this is not a CIC-IDS2017 result or a production IDS claim. "
-    "The temporal protocol measures within-dataset shift and does not establish zero-day detection."
-)
+_EVIDENCE_SCOPES = frozenset({"synthetic_development", "approved_local_cicids2017"})
+
+
+def _limitations(evidence_scope: str) -> str:
+    if evidence_scope == "synthetic_development":
+        return (
+            "Synthetic development data only; this is not a CIC-IDS2017 result "
+            "or a production IDS claim. "
+            "The temporal protocol measures within-dataset shift and does not "
+            "establish zero-day detection."
+        )
+    return (
+        "Approved local CIC-IDS2017 input scope; this research result is not "
+        "a production IDS claim. "
+        "The temporal protocol measures within-dataset shift and does not "
+        "establish zero-day detection "
+        "or real-world generalization."
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,6 +58,7 @@ class ExperimentConfig:
     seeds: tuple[int, ...]
     model_config_paths: tuple[Path, ...]
     splits: tuple[SplitProtocol, ...]
+    evidence_scope: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -277,7 +292,8 @@ def run_experiment(config_path: Path) -> ExperimentArtifact:
             "data_checksum_sha256": data_checksum,
             "experiment_identifier": config.identifier,
             "ledger_path": str(config.ledger_path),
-            "limitations": _LIMITATIONS,
+            "evidence_scope": config.evidence_scope,
+            "limitations": _limitations(config.evidence_scope),
             "manifest_checksums": {
                 kind: manifest.manifest_checksum_sha256 for kind, manifest in manifests.items()
             },
@@ -328,6 +344,7 @@ def _load_experiment_config(path: Path) -> ExperimentConfig:
         raise ValueError("experiment.seeds must be a non-empty list of integer seeds")
     if len(set(seeds)) != len(seeds):
         raise ValueError("experiment.seeds must not contain duplicates")
+    evidence_scope = _evidence_scope(values.get("evidence_scope", "synthetic_development"))
     raw_model_paths = values.get("model_config_paths")
     if not isinstance(raw_model_paths, list) or not raw_model_paths:
         raise ValueError("experiment.model_config_paths must be a non-empty list")
@@ -351,7 +368,16 @@ def _load_experiment_config(path: Path) -> ExperimentConfig:
         seeds=tuple(seeds),
         model_config_paths=tuple(_resolve_path(item, path) for item in raw_model_paths),
         splits=splits,
+        evidence_scope=evidence_scope,
     )
+
+
+def _evidence_scope(value: object) -> str:
+    if not isinstance(value, str) or value not in _EVIDENCE_SCOPES:
+        raise ValueError(
+            "experiment.evidence_scope must be synthetic_development or approved_local_cicids2017"
+        )
+    return value
 
 
 def _split_protocol(value: object) -> SplitProtocol:
@@ -488,7 +514,7 @@ def _metric_row(
         "false_positive_rate_at_predeclared_threshold": fpr_at_predeclared_threshold,
         "fit_seconds": fit_seconds,
         "inference_seconds": inference_seconds,
-        "limitations": _LIMITATIONS,
+        "limitations": _limitations(config.evidence_scope),
         "macro_f1": metrics.macro_f1,
         "max_fpr": config.max_fpr,
         "manifest_checksum_sha256": manifest.manifest_checksum_sha256,

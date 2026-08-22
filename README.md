@@ -1,52 +1,66 @@
 # Cyberattack Detection Using Machine Learning
 
-This repository is a reproducible research study of binary benign-versus-attack detection using CIC-IDS2017 flow records. It will compare a majority baseline, logistic regression, random forest, and a compact MLP under one shared evaluation protocol, including an ordinary split and an in-dataset temporal-shift holdout.
+This repository is a reproducible research study of binary BENIGN-versus-ATTACK detection with CIC-IDS2017 flow records. It compares a majority baseline, logistic regression, random forest, and a compact MLP under a shared protocol. The research question is: which model balances attack detection, false alarms, and reliable confidence when traffic changes over time?
 
-## Research-only scope
+## Research-only boundary
 
-This is not a production intrusion-detection system. CIC-IDS2017 is an older, synthetic-lab dataset, so findings cannot establish zero-day detection, safety in live networks, or generalization beyond the study dataset. Metrics and conclusions will be reported only from saved experiment artifacts; none are available yet.
+This is not a production intrusion-detection system. CIC-IDS2017 is an older, synthetic-lab dataset; a chronological holdout measures within-dataset shift only. No result here establishes live-network safety, zero-day detection, or generalization to another organization. Current checked-in documentation and local demo evidence are synthetic-development-only, not CIC-IDS2017 findings.
 
-## Reproducibility
+## Reproduce the approved local-data protocol
 
-The project will make preprocessing, split manifests, seeds, model configuration, threshold selection, calibration, and experiment outputs traceable. Preprocessing, resampling, calibration, and threshold selection will be fitted on training or validation rows only—never on the test set or chronological holdout.
-
-For a clean Python 3.11+ environment with [uv](https://docs.astral.sh/uv/) installed, create the lock-backed development environment:
+Use Python 3.11+ and [uv](https://docs.astral.sh/uv/). The command below is the one-command primary experiment once approved local CIC-IDS2017 CSV inputs are available. It does not download data; repeat `--raw` for every approved local file and choose a **new** ignored output directory.
 
 ```powershell
 uv sync --frozen --extra dev
+uv run --frozen python -m cyberattack_detection.reproduce --raw data/raw/approved-cicids2017.csv --output artifacts/primary-local-run
 ```
 
-Then run the Phase 0 quality checks:
+The command cleans the supplied local files, creates random and chronological manifests, trains all four primary models, fits calibration and chooses the operating threshold using validation rows only, writes metrics/figures/ledger evidence, creates one frozen error-and-ablation analysis, and verifies that the Streamlit dashboard can read only the saved artifacts.
+
+It prints the cleaned-data SHA-256 and the experiment/analysis locations. The important outputs are:
+
+- `artifacts/primary-local-run/cleaned/cleaning_audit.json`
+- `artifacts/primary-local-run/primary_experiment.yaml`
+- `artifacts/primary-local-run/artifacts/primary-<config-hash>/metadata.json`
+- `artifacts/primary-local-run/artifacts/primary-<config-hash>/tables/metrics.csv`
+- `artifacts/primary-local-run/artifacts/primary-<config-hash>/tables/seed_variation.csv`
+- `artifacts/primary-local-run/ledger.csv`
+
+Expected duration depends on the approved input size and hardware. The CI-sized synthetic smoke run completes in roughly 10 seconds on the development machine; it is a contract check, not a performance benchmark. Use a fresh output directory for every run because experiment and analysis evidence is immutable. Record the command, elapsed time, printed checksum, local input inventory, and output root in the experiment log before reporting any result.
+
+Before using official data, follow the source/terms/checksum procedure in [the data card](reports/data_card.md). Raw files stay local under `data/raw/` and must never be committed.
+
+## Quality and release checks
 
 ```powershell
-uv run --frozen pytest -q
+uv run --frozen pytest --basetemp artifacts/pytest-local -p no:cacheprovider -q
 uv run --frozen ruff format --check .
 uv run --frozen ruff check .
 uv run --frozen mypy src
-uv run --frozen python -c "from pathlib import Path; from cyberattack_detection.config import load_project_config; load_project_config(Path('configs/project.yaml'))"
 ```
 
-These commands use the committed `uv.lock`; they are documented commands, not a claim that they have been run in every environment. The Phase 0 release record will state the actual command results after independent QA.
-
-## Dataset policy
-
-The primary dataset is CIC-IDS2017. Obtain it only from the official CIC source after confirming its access terms. This task did not download, inspect, redistribute, or commit raw dataset files. Before any study run, the data card must record the official access route, retrieval date, applicable terms, checksum, schema, exclusions, and the binary target mapping.
-
-Raw data and generated artifacts are intended to remain local and ignored by version control. Only small, safe schemas, metadata, configurations, and reproducible instructions belong in the repository.
-
-## Project status
-
-Phases 0 (foundation) and 1 (data readiness) are complete under the revised Phase 0–2 cycle-review/commit cadence. Phase 2 (evaluation protocol) is complete on synthetic development data and awaits the same cycle gate; see `PROGRESS_TRACKER.md` for release fields.
-
-The current development fixture is synthetic. It exercises ingestion, cleaning, manifests, and preprocessing mechanics, but is not derived from or equivalent to CIC-IDS2017. It must not be presented as CIC-IDS2017 data or used to make CIC-IDS2017 result claims. No model results or performance metrics are reported here.
+CI runs these checks without downloading or requiring any private/raw CIC data. The end-to-end test uses a generated synthetic fixture only.
 
 ## Local dashboard demo
 
-With a saved artifact directory available locally, run the artifact-only Streamlit dashboard:
+After a local reproduction run, point the dashboard at that saved artifact root; it never retrains, re-scores live traffic, or opens raw flow files.
 
 ```powershell
-$env:CYBERATTACK_ARTIFACT_ROOT = (Resolve-Path "artifacts/phase5-synthetic-smoke-final/test_frozen_analysis_writes_re0/artifacts/phase5-synthetic-contract-2eaf949e051c")
+$env:CYBERATTACK_ARTIFACT_ROOT = (Resolve-Path "artifacts/primary-local-run/artifacts/primary-<config-hash>")
 uv run --frozen streamlit run src/app/app.py
 ```
 
-See `demo/run_demo.md` for the research-only demo script and limitations.
+For the 2–3 minute walkthrough, see [demo/run_demo.md](demo/run_demo.md). The dashboard's displayed metrics and examples are saved artifacts and remain research demonstrations, not IDS decisions.
+
+## Evidence and design notes
+
+- [Architecture and assumptions](reports/architecture.md)
+- [Data card and leakage decisions](reports/data_card.md)
+- [Research report and limitations](reports/research_report.md)
+- [Experiment-log interpretation boundary](reports/experiment_log.md)
+- [Interview questions](reports/interview_notes.md)
+- [Release progress and QA gate](PROGRESS_TRACKER.md)
+
+## Safeguards
+
+The common protocol fixes the feature contract, split manifests, model configs, and seeds across model comparisons. Preprocessing and any resampling fit on training rows only. Calibration and threshold selection use validation rows only; test and chronological-holdout outcomes are not used to choose the operating point. Source identifiers, timestamps, day fields, labels, and other target-derived/post-event candidates are excluded from model features unless a future written audit decision allows them.
