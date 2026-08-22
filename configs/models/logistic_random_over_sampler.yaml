@@ -1,0 +1,6 @@
+identifier: logistic-random-over-sampler-v1
+name: logistic_regression
+resampling: random_over_sampler
+class_weight: null
+parameters:
+  max_iter: 500

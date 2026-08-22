@@ -1,0 +1,5 @@
+identifier: majority-v1
+name: majority
+resampling: none
+class_weight: null
+parameters: {}

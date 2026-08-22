@@ -1,0 +1,9 @@
+identifier: compact-mlp-v1
+name: mlp
+resampling: none
+class_weight: balanced
+parameters:
+  hidden_units: 24
+  learning_rate: 0.01
+  max_epochs: 60
+  patience: 8

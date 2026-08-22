@@ -1,0 +1,7 @@
+identifier: random-forest-v1
+name: random_forest
+resampling: none
+class_weight: balanced
+parameters:
+  max_depth: 12
+  n_estimators: 100
