@@ -1,36 +1,47 @@
 # Cyberattack Detection Using Machine Learning
 
-This repository is a reproducible research study of binary BENIGN-versus-ATTACK detection with CIC-IDS2017 flow records. It compares a majority baseline, logistic regression, random forest, and a compact MLP under a shared protocol. The research question is: which model balances attack detection, false alarms, and reliable confidence when traffic changes over time?
+This repository is a reproducible research and educational demonstration of binary `BENIGN` versus `ATTACK` classification on deterministic synthetic network-flow records. It compares a majority baseline, logistic regression, random forest, and a compact MLP under one fixed protocol. The research question is: which model best balances attack detection, false alarms, and confidence reliability when controlled traffic patterns change over time?
 
 ## Research-only boundary
 
-This is not a production intrusion-detection system. CIC-IDS2017 is an older, synthetic-lab dataset; a chronological holdout measures within-dataset shift only. No result here establishes live-network safety, zero-day detection, or generalization to another organization. Current checked-in documentation and local demo evidence are synthetic-development-only, not CIC-IDS2017 findings.
+The generated records are not captured network traffic and are not derived from an operational dataset. The later-period evaluation is a deliberately controlled, within-scenario shift. It is not evidence of real-network realism, privacy protection, zero-day detection, deployment readiness, or generalization to other organizations.
 
-## Reproduce the approved local-data protocol
+## Reproduce the synthetic study
 
-Use Python 3.11+ and [uv](https://docs.astral.sh/uv/). The command below is the one-command primary experiment once approved local CIC-IDS2017 CSV inputs are available. It does not download data; repeat `--raw` for every approved local file and choose a **new** ignored output directory.
+Use Python 3.11+ and [uv](https://docs.astral.sh/uv/). This is the sole supported input path; it needs no external cybersecurity dataset or network acquisition. Choose a new, timestamped output directory because the generated evidence is immutable.
 
 ```powershell
 uv sync --frozen --extra dev
-uv run --frozen python -m cyberattack_detection.reproduce --raw data/raw/approved-cicids2017.csv --output artifacts/primary-local-run
+$runName = "artifacts/synthetic-run-" + (Get-Date -Format "yyyyMMdd-HHmmss")
+uv run --frozen python -m cyberattack_detection.reproduce --output $runName
 ```
 
-The command cleans the supplied local files, creates random and chronological manifests, trains all four primary models, fits calibration and chooses the operating threshold using validation rows only, writes metrics/figures/ledger evidence, creates one frozen error-and-ablation analysis, and verifies that the Streamlit dashboard can read only the saved artifacts.
+Optional `--seed` and `--rows` values create a separately declared synthetic scenario run. The command generates and validates the CSV/provenance pair, cleans planned defects, creates random and chronological manifests, trains all four models, fits calibration and selects the operating threshold using validation rows only, writes analysis and ledger evidence, and validates that the dashboard can load the saved artifacts.
 
-It prints the cleaned-data SHA-256 and the experiment/analysis locations. The important outputs are:
+Important outputs are:
 
-- `artifacts/primary-local-run/cleaned/cleaning_audit.json`
-- `artifacts/primary-local-run/primary_experiment.yaml`
-- `artifacts/primary-local-run/artifacts/primary-<config-hash>/metadata.json`
-- `artifacts/primary-local-run/artifacts/primary-<config-hash>/tables/metrics.csv`
-- `artifacts/primary-local-run/artifacts/primary-<config-hash>/tables/seed_variation.csv`
-- `artifacts/primary-local-run/ledger.csv`
+- `$runName/generated/network_flows.csv` and `$runName/generated/network_flows.metadata.json`
+- `$runName/cleaned/cleaning_audit.json`
+- `$runName/primary_experiment.yaml`
+- `$runName/artifacts/primary-<config-hash>/metadata.json`
+- `$runName/artifacts/primary-<config-hash>/tables/metrics.csv`
+- `$runName/artifacts/primary-<config-hash>/tables/seed_variation.csv`
+- `$runName/ledger.csv`
 
-Expected duration depends on the approved input size and hardware. The CI-sized synthetic smoke run completes in roughly 10 seconds on the development machine; it is a contract check, not a performance benchmark. Use a fresh output directory for every run because experiment and analysis evidence is immutable. Record the command, elapsed time, printed checksum, local input inventory, and output root in the experiment log before reporting any result.
+Runtime depends on hardware and the requested row count. Record the actual elapsed time, seed, requested rows, generated CSV checksum, provenance checksum, and output root during final QA; do not treat a local run time as a benchmark.
 
-Before using official data, follow the source/terms/checksum procedure in [the data card](reports/data_card.md). Raw files stay local under `data/raw/` and must never be committed.
+## Local dashboard demo
 
-## Quality and release checks
+After a reproduction run, point Streamlit to the printed experiment-artifact root. The dashboard is artifact-only: it never generates data, retrains a model, mutates evidence, or scores live traffic.
+
+```powershell
+$env:CYBERATTACK_ARTIFACT_ROOT = (Resolve-Path "$runName/artifacts/primary-<config-hash>")
+uv run --frozen streamlit run src/app/app.py
+```
+
+The two pages are **Research Overview** and **Results & Model Comparison**. For the beginner walkthrough, see [demo/run_demo.md](demo/run_demo.md).
+
+## Quality checks
 
 ```powershell
 uv run --frozen pytest --basetemp artifacts/pytest-local -p no:cacheprovider -q
@@ -39,23 +50,12 @@ uv run --frozen ruff check .
 uv run --frozen mypy src
 ```
 
-CI runs these checks without downloading or requiring any private/raw CIC data. The end-to-end test uses a generated synthetic fixture only.
-
-## Local dashboard demo
-
-After a local reproduction run, point the dashboard at that saved artifact root; it never retrains, re-scores live traffic, or opens raw flow files.
-
-```powershell
-$env:CYBERATTACK_ARTIFACT_ROOT = (Resolve-Path "artifacts/primary-local-run/artifacts/primary-<config-hash>")
-uv run --frozen streamlit run src/app/app.py
-```
-
-For the 2–3 minute walkthrough, see [demo/run_demo.md](demo/run_demo.md). The dashboard's displayed metrics and examples are saved artifacts and remain research demonstrations, not IDS decisions.
+CI does not acquire a dataset. Its end-to-end smoke test generates deterministic synthetic input and validates the complete artifact flow.
 
 ## Evidence and design notes
 
+- [Synthetic data card](reports/data_card.md)
 - [Architecture and assumptions](reports/architecture.md)
-- [Data card and leakage decisions](reports/data_card.md)
 - [Research report and limitations](reports/research_report.md)
 - [Experiment-log interpretation boundary](reports/experiment_log.md)
 - [Interview questions](reports/interview_notes.md)
@@ -63,4 +63,4 @@ For the 2–3 minute walkthrough, see [demo/run_demo.md](demo/run_demo.md). The 
 
 ## Safeguards
 
-The common protocol fixes the feature contract, split manifests, model configs, and seeds across model comparisons. Preprocessing and any resampling fit on training rows only. Calibration and threshold selection use validation rows only; test and chronological-holdout outcomes are not used to choose the operating point. Source identifiers, timestamps, day fields, labels, and other target-derived/post-event candidates are excluded from model features unless a future written audit decision allows them.
+The common protocol fixes the feature contract, split manifests, model configurations, and seeds across comparisons. Identifiers, timestamps/periods, attack-family metadata, labels, row order, and post-event candidates are prohibited model features. Preprocessing and resampling fit on training rows only; calibration and threshold selection fit on validation rows only; random-test and chronological-holdout rows remain evaluation-only.

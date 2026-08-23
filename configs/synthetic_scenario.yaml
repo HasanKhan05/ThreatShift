@@ -1,0 +1,168 @@
+scenario:
+  schema_version: "1.0"
+  generator_id: cyberattack_detection.synthetic_network_flows
+  generator_version: "1.0.0"
+  scenario_version: "1.0.0"
+  dataset_identifier: deterministic-synthetic-network-flows
+  metadata_columns:
+    - Flow ID
+    - Source IP
+    - Destination IP
+    - Timestamp
+    - Traffic Period
+    - Attack Family
+  label_column: Label
+  model_feature_columns:
+    - Flow Duration
+    - Total Fwd Packets
+    - Total Backward Packets
+    - Total Length of Fwd Packets
+    - Total Length of Bwd Packets
+    - Fwd Packet Length Mean
+    - Bwd Packet Length Mean
+    - Flow Bytes/s
+    - Flow Packets/s
+    - Flow IAT Mean
+    - SYN Flag Count
+    - ACK Flag Count
+    - Down/Up Ratio
+    - Average Packet Size
+    - Idle Mean
+    - Active Mean
+  feature_definitions:
+    - name: Flow Duration
+      unit: microseconds
+      minimum: 100.0
+      maximum: 20000000.0
+      description: Synthetic elapsed flow time.
+    - name: Total Fwd Packets
+      unit: packets
+      minimum: 1.0
+      maximum: 50000.0
+      description: Synthetic forward packet count.
+    - name: Total Backward Packets
+      unit: packets
+      minimum: 0.0
+      maximum: 50000.0
+      description: Synthetic backward packet count.
+    - name: Total Length of Fwd Packets
+      unit: bytes
+      minimum: 40.0
+      maximum: 1000000000.0
+      description: Synthetic forward payload total.
+    - name: Total Length of Bwd Packets
+      unit: bytes
+      minimum: 0.0
+      maximum: 1000000000.0
+      description: Synthetic backward payload total.
+    - name: Fwd Packet Length Mean
+      unit: bytes_per_packet
+      minimum: 0.0
+      maximum: 65535.0
+      description: Forward bytes divided by forward packets.
+    - name: Bwd Packet Length Mean
+      unit: bytes_per_packet
+      minimum: 0.0
+      maximum: 65535.0
+      description: Backward bytes divided by backward packets.
+    - name: Flow Bytes/s
+      unit: bytes_per_second
+      minimum: 0.0
+      maximum: 1000000000000.0
+      description: Synthetic byte throughput.
+    - name: Flow Packets/s
+      unit: packets_per_second
+      minimum: 0.0
+      maximum: 1000000000.0
+      description: Synthetic packet throughput.
+    - name: Flow IAT Mean
+      unit: microseconds
+      minimum: 0.0
+      maximum: 20000000.0
+      description: Mean synthetic inter-arrival time.
+    - name: SYN Flag Count
+      unit: flags
+      minimum: 0.0
+      maximum: 50000.0
+      description: Synthetic SYN flag count bounded by forward packets.
+    - name: ACK Flag Count
+      unit: flags
+      minimum: 0.0
+      maximum: 100000.0
+      description: Synthetic ACK flag count bounded by total packets.
+    - name: Down/Up Ratio
+      unit: ratio
+      minimum: 0.0
+      maximum: 50000.0
+      description: Backward packets divided by forward packets.
+    - name: Average Packet Size
+      unit: bytes_per_packet
+      minimum: 0.0
+      maximum: 65535.0
+      description: Total bytes divided by total packets.
+    - name: Idle Mean
+      unit: microseconds
+      minimum: 0.0
+      maximum: 20000000.0
+      description: Synthetic mean idle interval.
+    - name: Active Mean
+      unit: microseconds
+      minimum: 0.0
+      maximum: 20000000.0
+      description: Synthetic mean active interval.
+  periods:
+    - id: period-1
+      date: "2026-01-05"
+      attack_prevalence: 0.20
+      traffic_scale: 1.00
+      syn_shift: 0.00
+    - id: period-2
+      date: "2026-01-06"
+      attack_prevalence: 0.24
+      traffic_scale: 1.05
+      syn_shift: 0.05
+    - id: period-3
+      date: "2026-01-07"
+      attack_prevalence: 0.28
+      traffic_scale: 1.10
+      syn_shift: 0.10
+    - id: period-4
+      date: "2026-01-08"
+      attack_prevalence: 0.48
+      traffic_scale: 1.30
+      syn_shift: 0.75
+    - id: period-5
+      date: "2026-01-09"
+      attack_prevalence: 0.56
+      traffic_scale: 1.45
+      syn_shift: 1.10
+  attack_families:
+    denial-of-service: 0.45
+    scanning: 0.30
+    credential-abuse: 0.15
+    web-exploitation: 0.10
+  planned_defects:
+    missing_label_rows: 8
+    nonfinite_feature_rows: 12
+    duplicate_rows: 24
+  controlled_shift:
+    starts_in_period: period-4
+    interventions:
+      - Higher attack prevalence in periods 4 and 5.
+      - Increased traffic volume in periods 4 and 5.
+      - Increased SYN activity in periods 4 and 5.
+    interpretation: Controlled within-scenario temporal shift only.
+  cross_field_constraints:
+    - SYN Flag Count cannot exceed Total Fwd Packets.
+    - ACK Flag Count cannot exceed total packet count.
+    - Packet-length means and rates are derived from their component fields.
+    - Idle Mean plus Active Mean cannot exceed Flow Duration.
+  assumptions:
+    - Records are independent synthetic flow summaries within each declared period.
+    - Labels and attack families are generator annotations, not observed incidents.
+    - The later-period intervention is deliberately controlled and known.
+  limitations:
+    - This dataset is generated and is not captured network traffic.
+    - Synthetic utility does not establish privacy or real-network realism.
+    - Results do not demonstrate zero-day detection or production readiness.
+    - Generalization to organizations, devices, or live traffic is untested.

@@ -50,6 +50,9 @@ class _FrozenSource:
     seed: int
     threshold: float
     max_fpr: float
+    evidence_scope: str
+    synthetic_provenance: dict[str, object]
+    synthetic_provenance_checksum_sha256: str
 
 
 def run_frozen_analysis(
@@ -93,9 +96,12 @@ def run_frozen_analysis(
         metadata_path,
         {
             "artifact_version": 2,
+            "evidence_scope": source.evidence_scope,
+            "synthetic_provenance": source.synthetic_provenance,
+            "synthetic_provenance_checksum_sha256": (source.synthetic_provenance_checksum_sha256),
             "limitations": [
                 (
-                    "Synthetic-development-only evidence must not be reported as CIC-IDS2017 "
+                    "Synthetic-development-only evidence must not be reported as a benchmark of "
                     "or live-network results."
                 ),
                 (
@@ -145,6 +151,9 @@ def validate_analysis_artifact(artifact_path: Path) -> dict[str, object]:
     if source_run_path != resolved_artifact.parent:
         raise ValueError("analysis metadata source run does not own this analysis directory")
     source_metadata_path = source_run_path / "metadata.json"
+    source_run_metadata = _read_mapping(source_metadata_path, "source run metadata")
+    if _synthetic_binding(metadata) != _synthetic_binding(source_run_metadata):
+        raise ValueError("analysis synthetic provenance disagrees with its source run")
     expected_source_checksum = _source_string(source, "source_run_metadata_checksum_sha256")
     if _sha256(source_metadata_path) != expected_source_checksum:
         raise ValueError("analysis source-run metadata checksum does not match")
@@ -170,7 +179,7 @@ def validate_analysis_artifact(artifact_path: Path) -> dict[str, object]:
     _validate_shap_artifact(
         _read_mapping(resolved_artifact / "shap_status.json", "SHAP status"),
         source,
-        _read_mapping(source_metadata_path, "source run metadata"),
+        source_run_metadata,
     )
     return metadata
 
@@ -185,6 +194,7 @@ def _load_frozen_source(run_path: Path) -> _FrozenSource:
     if not isinstance(metadata, dict) or not isinstance(metadata.get("analysis_source"), dict):
         raise ValueError("frozen run metadata is missing analysis_source provenance")
     source = cast(dict[str, Any], metadata["analysis_source"])
+    evidence_scope, synthetic_provenance, provenance_checksum = _synthetic_binding(metadata)
     scored_records_path = _source_path(source, "scored_records_path")
     if _sha256(scored_records_path) != _source_string(source, "scored_records_checksum_sha256"):
         raise ValueError("saved scored-record checksum does not match frozen evaluation provenance")
@@ -228,6 +238,9 @@ def _load_frozen_source(run_path: Path) -> _FrozenSource:
         _source_int(source, "seed"),
         threshold,
         max_fpr,
+        evidence_scope,
+        synthetic_provenance,
+        provenance_checksum,
     )
 
 
@@ -614,6 +627,27 @@ def _canonical_data_checksum(frame: pd.DataFrame, id_column: str) -> str:
 
 def _source_path(values: Mapping[str, object], field: str) -> Path:
     return Path(_source_string(values, field)).resolve()
+
+
+def _synthetic_binding(
+    values: Mapping[str, object],
+) -> tuple[str, dict[str, object], str]:
+    scope = values.get("evidence_scope")
+    if scope != "synthetic_development":
+        raise ValueError("analysis evidence_scope must be synthetic_development")
+    provenance = values.get("synthetic_provenance")
+    if not isinstance(provenance, dict) or provenance.get("is_synthetic") is not True:
+        raise ValueError("analysis metadata requires verified synthetic provenance")
+    if provenance.get("dataset_identifier") != "deterministic-synthetic-network-flows":
+        raise ValueError("analysis metadata has unsupported synthetic provenance")
+    checksum = values.get("synthetic_provenance_checksum_sha256")
+    if (
+        not isinstance(checksum, str)
+        or len(checksum) != 64
+        or any(character not in "0123456789abcdef" for character in checksum)
+    ):
+        raise ValueError("analysis metadata has invalid synthetic provenance checksum")
+    return scope, cast(dict[str, object], provenance), checksum
 
 
 def _source_string(values: Mapping[str, object], field: str) -> str:

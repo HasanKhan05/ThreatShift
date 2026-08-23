@@ -1,3 +1,4 @@
+> **Historical evidence — superseded by Phase 8 synthetic-only redesign.** This note records an earlier release state only. It is not an active instruction, input requirement, or claim for the current synthetic-only study.
 # Phase 2 — Evaluation Protocol Risks and Decisions
 
 ## Active items

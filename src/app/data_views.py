@@ -121,13 +121,13 @@ def load_dashboard_artifacts(root: Path) -> DashboardData:
             metadata=metadata,
             metrics=metrics,
             seed_variation=seed_variation,
-            cleaning_audit=_load_cleaning_audit(resolved_root, runs),
+            cleaning_audit=_load_cleaning_audit(resolved_root, metadata),
             runs=runs,
             error_summary=error_summary,
             error_representatives=error_representatives,
             ablations=ablations,
             shap_status=shap_status,
-            examples=_load_examples(resolved_root),
+            examples=_load_examples(resolved_root, metadata),
         )
     except ValueError as error:
         return _empty(resolved_root, str(error))
@@ -154,6 +154,7 @@ def _empty(root: Path, detail: str) -> DashboardData:
 def _validate_experiment_metadata(metadata: dict[str, object]) -> None:
     if metadata.get("artifact_version") != _SUPPORTED_ARTIFACT_VERSION:
         raise ValueError("unsupported experiment artifact version")
+    _synthetic_binding(metadata, "experiment metadata")
     _required_string(metadata, "experiment_identifier")
     _required_hash(metadata, "data_checksum_sha256")
     seeds = metadata.get("seeds")
@@ -219,6 +220,10 @@ def _load_runs(
         seed = _parse_seed(run_path.name)
         key = (split_kind, model_identifier, seed)
         run_metadata = _read_mapping(run_path / "metadata.json", "run metadata")
+        if _synthetic_binding(run_metadata, "run metadata") != _synthetic_binding(
+            metadata, "experiment metadata"
+        ):
+            raise ValueError("run synthetic provenance disagrees with experiment")
         threshold = _unit_interval(run_metadata.get("threshold"), "run threshold")
         max_fpr = _unit_interval(run_metadata.get("max_fpr"), "run max_fpr")
         scored_path = run_path / "analysis_scored_records.csv"
@@ -489,19 +494,20 @@ def _validate_reconciliation(
         raise ValueError("metrics table manifest checksum disagrees with run provenance")
 
 
-def _load_cleaning_audit(
-    root: Path, runs: dict[tuple[str, str, int], DashboardRun]
-) -> dict[str, object]:
+def _load_cleaning_audit(root: Path, experiment: dict[str, object]) -> dict[str, object]:
     candidates = [
         root / "cleaning_audit.json",
         root.parent.parent / "cleaned" / "cleaning_audit.json",
     ]
     for candidate in candidates:
-        try:
-            return _read_mapping(candidate, "cleaning audit")
-        except ValueError:
-            continue
-    return {}
+        if candidate.is_file():
+            audit = _read_mapping(candidate, "cleaning audit")
+            if _provenance_binding(audit, "cleaning audit") != _provenance_binding(
+                experiment, "experiment metadata"
+            ):
+                raise ValueError("cleaning audit synthetic provenance disagrees with experiment")
+            return audit
+    raise ValueError("cleaning audit with synthetic provenance is missing")
 
 
 def _load_seed_variation(root: Path, metrics: pd.DataFrame) -> pd.DataFrame:
@@ -578,6 +584,11 @@ def _load_analysis_bundle(
     metadata = _read_mapping(analysis_root / "metadata.json", "analysis metadata")
     if metadata.get("artifact_version") != 2:
         raise ValueError("analysis metadata has an unsupported artifact version")
+    run_metadata = _read_mapping(run.artifact_path / "metadata.json", "run metadata")
+    if _synthetic_binding(metadata, "analysis metadata") != _synthetic_binding(
+        run_metadata, "run metadata"
+    ):
+        raise ValueError("analysis synthetic provenance disagrees with its saved run")
     source = _mapping_value(metadata, "source", "analysis metadata")
     _validate_analysis_source(source, run)
     outputs = _mapping_value(metadata, "outputs", "analysis metadata")
@@ -883,19 +894,42 @@ def _read_csv_allow_empty(path: Path, name: str) -> pd.DataFrame:
         raise ValueError(f"unable to read {name}") from error
 
 
-def _load_examples(root: Path) -> tuple[dict[str, object], ...]:
-    for candidate in (
-        root / "demo" / "examples.json",
-        Path(__file__).resolve().parents[2] / "demo" / "examples.json",
+def _load_examples(root: Path, experiment: dict[str, object]) -> tuple[dict[str, object], ...]:
+    payload = _read_mapping(root / "demo" / "examples.json", "demo examples")
+    if _synthetic_binding(payload, "demo metadata") != _synthetic_binding(
+        experiment, "experiment metadata"
     ):
-        try:
-            payload = _read_mapping(candidate, "demo examples")
-        except ValueError:
-            continue
-        examples = payload.get("examples")
-        if isinstance(examples, list) and all(isinstance(item, dict) for item in examples):
-            return tuple(cast(dict[str, object], item) for item in examples)
-    return ()
+        raise ValueError("demo synthetic provenance disagrees with experiment")
+    examples = payload.get("examples")
+    if (
+        not isinstance(examples, list)
+        or not examples
+        or not all(isinstance(item, dict) for item in examples)
+    ):
+        raise ValueError("demo examples are missing or invalid")
+    return tuple(cast(dict[str, object], item) for item in examples)
+
+
+def _synthetic_binding(values: dict[str, object], name: str) -> tuple[dict[str, object], str]:
+    if values.get("evidence_scope") != "synthetic_development":
+        raise ValueError(f"{name} evidence_scope must be synthetic_development")
+    return _provenance_binding(values, name)
+
+
+def _provenance_binding(values: dict[str, object], name: str) -> tuple[dict[str, object], str]:
+    provenance = values.get("synthetic_provenance")
+    if not isinstance(provenance, dict) or provenance.get("is_synthetic") is not True:
+        raise ValueError(f"{name} requires verified synthetic provenance")
+    if provenance.get("dataset_identifier") != "deterministic-synthetic-network-flows":
+        raise ValueError(f"{name} has unsupported synthetic provenance")
+    for field in ("csv_checksum_sha256", "configuration_checksum_sha256"):
+        value = provenance.get(field)
+        if not isinstance(value, str) or not _HASH_RE.fullmatch(value):
+            raise ValueError(f"{name} has invalid synthetic provenance {field}")
+    checksum = values.get("synthetic_provenance_checksum_sha256")
+    if not isinstance(checksum, str) or not _HASH_RE.fullmatch(checksum):
+        raise ValueError(f"{name} has invalid synthetic provenance checksum")
+    return cast(dict[str, object], provenance), checksum
 
 
 def _read_mapping(path: Path, name: str) -> dict[str, object]:

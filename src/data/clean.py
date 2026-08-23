@@ -1,4 +1,4 @@
-"""Deterministic, leakage-aware cleaning for local CIC-IDS2017 CSV files."""
+"""Deterministic, leakage-aware cleaning for validated synthetic CSV files."""
 
 from __future__ import annotations
 
@@ -12,7 +12,8 @@ import numpy as np
 import pandas as pd  # type: ignore[import-untyped]
 
 from .audit import write_audit
-from .ingest import DatasetConfig, canonical_column_name, read_cic_csvs
+from .ingest import DatasetConfig, canonical_column_name, read_flow_csvs
+from .synthetic import SyntheticProvenance, validate_synthetic_dataset
 
 
 @dataclass(frozen=True, slots=True)
@@ -26,8 +27,8 @@ class CleanResult:
     checksum: str
 
 
-def clean_dataset(raw_paths: Sequence[Path], config: DatasetConfig) -> CleanResult:
-    """Clean CIC-IDS2017-style CSVs without changing the raw inputs.
+def clean_dataset(input_paths: Sequence[Path], config: DatasetConfig) -> CleanResult:
+    """Clean validated synthetic CSVs without changing the generated inputs.
 
     Labels equal to the configured benign label become ``BENIGN``; every other
     non-empty label becomes ``ATTACK``. Rows with an empty label, non-finite
@@ -35,7 +36,18 @@ def clean_dataset(raw_paths: Sequence[Path], config: DatasetConfig) -> CleanResu
     that fixed order. All source, timestamp, identifier, and post-label
     candidate columns in the configuration are excluded before numeric coercion.
     """
-    raw_frame, input_records = read_cic_csvs(raw_paths)
+    verified_provenance: SyntheticProvenance | None = None
+    provenance_checksum: str | None = None
+    if config.synthetic_provenance_required:
+        if len(input_paths) != 1:
+            raise ValueError("synthetic cleaning requires exactly one CSV and provenance sidecar")
+        csv_path = input_paths[0]
+        metadata_path = csv_path.with_suffix(config.provenance_metadata_suffix)
+        verified_provenance = validate_synthetic_dataset(csv_path, metadata_path)
+        if verified_provenance.dataset_identifier != config.dataset_identifier:
+            raise ValueError("synthetic provenance dataset identifier does not match configuration")
+        provenance_checksum = _sha256(metadata_path)
+    raw_frame, input_records = read_flow_csvs(input_paths)
     label_column = _resolve_column(raw_frame.columns, config.label_column, "label")
     temporal_source_column: str | None = None
     if config.temporal_source_column is not None:
@@ -150,6 +162,14 @@ def clean_dataset(raw_paths: Sequence[Path], config: DatasetConfig) -> CleanResu
             "raw_column_count": len(raw_frame.columns),
             "raw_row_count": len(raw_frame),
             "row_removal_counts": row_removal_counts,
+            **(
+                {
+                    "synthetic_provenance": verified_provenance.to_dict(),
+                    "synthetic_provenance_checksum_sha256": provenance_checksum,
+                }
+                if verified_provenance is not None
+                else {}
+            ),
             **(
                 {
                     "split_metadata": {

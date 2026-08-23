@@ -134,13 +134,13 @@ def test_primary_models_share_frozen_synthetic_protocol_over_all_configured_seed
     from data.clean import clean_dataset
     from data.ingest import load_dataset_config
     from data.splits import SplitProtocol, create_split_manifest
-    from data.synthetic import generate_synthetic_cicids2017
+    from data.synthetic import generate_synthetic_network_flows
     from features.preprocess import FeatureSchema, fit_preprocessor
 
     repository_root = Path(__file__).resolve().parents[2]
-    raw_path = generate_synthetic_cicids2017(tmp_path / "synthetic.csv", valid_rows=240)
+    raw_path = generate_synthetic_network_flows(tmp_path / "synthetic.csv", valid_rows=240).csv_path
     dataset_config = replace(
-        load_dataset_config(repository_root / "configs" / "dataset_cicids2017.yaml"),
+        load_dataset_config(repository_root / "configs" / "dataset_synthetic.yaml"),
         output_dir=tmp_path / "cleaned",
     )
     result = clean_dataset([raw_path], dataset_config)

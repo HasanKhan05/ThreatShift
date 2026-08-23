@@ -1,64 +1,31 @@
-# CIC-IDS2017 Data Card and Local Access Instructions
+# Deterministic synthetic network-flow data card
 
-## Purpose and task
+## Purpose and boundary
 
-The primary research task is binary classification: `BENIGN` versus `ATTACK`.
-During cleaning, a non-empty raw label equal to `BENIGN` after whitespace and
-case normalization becomes `BENIGN`; every other non-empty raw label becomes
-`ATTACK`. Empty labels are removed and counted in the generated audit. This is
-a research convention for the planned binary task, not an assertion about the
-meaning or severity of individual attack families.
+The sole supported input is locally generated deterministic synthetic network-flow data. The binary target is `BENIGN` versus `ATTACK`: the generator emits those labels directly; empty labels are planned defects removed and counted by cleaning. Attack-family annotations are generator metadata for analysis only, never model features and never observed incident evidence.
 
-## Access and provenance
+This dataset is for reproducible pipeline and model-comparison research. It is not captured traffic, a proxy for a particular organization, proof of realistic attack behavior, or an operational safety evaluation.
 
-- Dataset: CIC-IDS2017 (primary dataset).
-- Official source/access route: [Canadian Institute for Cybersecurity (CIC),
-  University of New Brunswick — IDS 2017](https://www.unb.ca/cic/datasets/ids-2017.html).
-- Official access terms stated on that page: the dataset CSV files are publicly
-  available to researchers. The page asks users to cite the associated 2018
-  Sharafaldin, Lashkari, and Ghorbani paper when using the data. It does not by
-  itself establish that the raw files may be redistributed through this
-  repository, so they remain local and ignored.
-- Requested citation: I. Sharafaldin, A. H. Lashkari, and A. A. Ghorbani,
-  “Toward Generating a New Intrusion Detection Dataset and Intrusion Traffic
-  Characterization,” *Proceedings of the 4th International Conference on
-  Information Systems Security and Privacy (ICISSP)*, 2018.
-- Retrieval date: not yet available.
-- Raw-data checksum(s): not yet available.
-- Raw schema and capture-day coverage: not yet available.
+## Scenario contract
 
-No CIC-IDS2017 raw data has been downloaded, examined, redistributed, or
-committed in this repository. Do not invent an input checksum, observed raw
-schema, row count, capture-day coverage, license, or experiment result.
+`configs/dataset_synthetic.yaml` and `configs/synthetic_scenario.yaml` define scenario version `1.0.0` for `deterministic-synthetic-network-flows`. The seed defaults to `1729`; with the same version, lockfile, seed, and requested valid-row count, the generator emits byte-identical CSV and canonical provenance JSON.
 
-## Required provenance record before use
+The scenario exposes 16 permitted numeric flow-summary features. Units are recorded in the provenance sidecar: durations/inter-arrival/activity/idle times are microseconds; packet counts are packets; lengths are bytes; throughput is bytes or packets per second; flag counts are flags; and ratio/mean fields use their stated derived units. IDs, source/destination addresses, timestamps, traffic period, attack family, labels, and row order are prohibited features.
 
-Record, in the data card or generated audit artifacts:
+Five ordered periods (`period-1` through `period-5`) have declared attack prevalence of 20%, 24%, 28%, 48%, and 56%. Periods 4–5 apply the controlled shift: higher attack prevalence, traffic volume, and SYN activity. This is a known generator intervention for time-aware evaluation, not naturally observed drift.
 
-1. Official access route and the applicable access terms.
-2. Retrieval date and checksums for each downloaded input.
-3. Original filenames, documented capture-day coverage, and raw schema.
-4. The binary label mapping and all excluded labels/rows with reasons.
-5. Cleaning counts for malformed, non-finite, duplicate, and otherwise excluded rows.
-6. Feature provenance, dropped-column reasons, and leakage-review decisions.
+Each generated run deliberately includes 8 empty-label rows, 12 non-finite-feature rows, and 24 duplicate rows so the reason-coded cleaning audit is exercised.
 
-## Research safeguards
+## Provenance and validation
 
-Raw source filenames, row order, target-derived fields, post-event information, timestamps that act as label proxies, and attack-day identity must not become features without a written leakage-audit decision. Split manifests must be created before preprocessing or modeling. Preprocessing, resampling, calibration, and threshold selection may use training/validation data only; test and chronological-holdout data remain untouched until final evaluation.
+Before cleaning, the pipeline validates the CSV/sidecar pair and fails closed for missing, malformed, mismatched, unsupported, or non-synthetic provenance. The sidecar records schema/generator/scenario versions, seed, requested and emitted rows, label and period counts, feature definitions, assumptions, shift schedule, configuration checksum, scenario checksum, CSV SHA-256, and limitations. `cleaning_audit.json` retains the verified provenance and sidecar checksum.
 
-The chronological evaluation is an in-dataset temporal shift, not evidence of zero-day detection or production readiness.
+The validation checks required columns/types, declared ranges and cross-field constraints, non-empty class/period counts, period order, planned defects, checksum binding, deterministic regeneration, and the absence of prohibited model features.
 
-## Local storage and sharing policy
+## Assumptions, privacy, and limits
 
-Store approved raw CSV files in `data/raw/`; that path is ignored. Run the
-cleaner with `configs/dataset_cicids2017.yaml`; it reads raw CSVs without
-modifying them and writes an ignored cleaned parquet file plus a canonical JSON
-audit under `data/processed/cicids2017/` by default. The audit records input
-file names and SHA-256 checksums, raw and retained counts, label mapping,
-reason-coded removals, dropped leakage-candidate columns, and the derived
-feature schema.
+The generator assumes independent synthetic flow summaries within each period; labels and attack families are generator annotations. Synthetic data does not automatically provide a privacy guarantee. This project generates data rather than synthesizing personal or operational records, but it still makes no privacy, anonymity, disclosure-risk, or utility-for-real-networks claim. NIST notes that synthetic-data utility and privacy must be evaluated for the intended use; privacy protections require their own evidence, not the word “synthetic.”
 
-Do not commit raw dataset files, credentials, restricted samples, or large
-generated binaries. Safe derived schemas, audit summaries, and small redacted
-examples may be versioned only when their provenance and privacy review are
-documented.
+For related guidance, see [NIST SP 800-226](https://doi.org/10.6028/NIST.SP.800-226) and NIST’s [synthetic-data evaluation resources](https://pages.nist.gov/HLG-MOS_Synthetic_Data_Test_Drive/guide.html).
+
+Do not commit large generated outputs, credentials, or private examples. Small checked-in synthetic fixtures are only contract fixtures; generated study outputs remain ignored.

@@ -1,12 +1,12 @@
-"""Local Streamlit dashboard for validated cyberattack-detection research artifacts."""
+"""Two-page Streamlit dashboard for validated synthetic research artifacts."""
 
 from __future__ import annotations
 
 import os
 import sys
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 if __name__ == "__main__" and not __package__:
     _script_directory = Path(__file__).resolve().parent
@@ -16,375 +16,295 @@ if __name__ == "__main__" and not __package__:
 
 import pandas as pd  # type: ignore[import-untyped]
 
-from app.analysis_views import ablation_table, error_slice_table, representative_error_table
-from app.data_views import DashboardData, DashboardRun, load_dashboard_artifacts
-from app.demo_views import render_demo_prediction
-from app.model_views import METRIC_DEFINITIONS, model_comparison_table, shift_calibration_table
+from app.data_views import DashboardData, load_dashboard_artifacts
+from app.model_views import (
+    ModelRecommendation,
+    metric_card_summaries,
+    model_metric_summary_table,
+    recommend_model_from_saved_evidence,
+)
+from app.styles import apply_dashboard_styles
 
 NAVIGATION_AREAS = (
-    "Overview & provenance",
-    "Cleaning & feature audit",
-    "Models & comparison",
-    "Shift & calibration",
-    "Errors & ablations",
-    "Demo prediction",
+    "Research Overview",
+    "Results & Model Comparison",
 )
-_DATA_SOURCE_URL = "https://www.unb.ca/cic/datasets/ids-2017.html"
-_RESEARCH_DISCLAIMER = (
-    "Research-only dashboard. The current saved evidence is synthetic development data, "
-    "not a production IDS result, CIC-IDS2017 finding, or zero-day-detection claim."
-)
+_NAVIGATION_LABELS = {
+    "Research Overview": "⌂ Research Overview",
+    "Results & Model Comparison": "▦ Model Results",
+}
+_ACTIVE_PAGE_KEY = "dashboard_active_page"
 
 
 def run_dashboard(root: Path | None = None) -> None:
-    """Run the local dashboard against one immutable saved artifact root."""
+    """Run the artifact-only dashboard against one immutable saved artifact root."""
     import streamlit as st
 
+    st.set_page_config(
+        page_title="Cyberattack Detection Research",
+        page_icon="🔎",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
+    apply_dashboard_styles(st)
     artifact_root = root or Path(os.environ.get("CYBERATTACK_ARTIFACT_ROOT", "artifacts"))
-    data = load_dashboard_artifacts(artifact_root)
-    st.set_page_config(page_title="Cyberattack Detection Research", layout="wide")
-    st.title("Cyberattack Detection Research Results")
-    st.warning(_RESEARCH_DISCLAIMER)
+    with st.spinner("Loading validated saved evidence…"):
+        data = load_dashboard_artifacts(artifact_root)
+
     if not data.is_ready:
-        st.info(data.message)
-        st.markdown(
-            "Provide a complete saved experiment directory with metadata, metrics, "
-            "provenance-linked run records, and metrics JSON."
-        )
+        _render_unavailable(st, data)
         return
-    selection = st.sidebar.radio("Research dashboard section", NAVIGATION_AREAS)
+
+    selection = _render_sidebar_navigation(st)
     PAGE_RENDERERS[selection](st, data)
 
 
-def _overview(st: Any, data: DashboardData) -> None:
-    st.header("Overview & provenance")
-    st.write(
-        "Research question: which model balances attack detection, false alarms, "
-        "and reliable confidence when traffic changes over time?"
+def _render_sidebar_navigation(st: Any) -> str:
+    """Render two keyboard-accessible navigation buttons with a clear active state."""
+    if st.session_state.get(_ACTIVE_PAGE_KEY) not in NAVIGATION_AREAS:
+        st.session_state[_ACTIVE_PAGE_KEY] = NAVIGATION_AREAS[0]
+
+    with st.sidebar:
+        st.markdown(
+            """
+            <div class="sidebar-brand">
+              <span class="sidebar-mark" aria-hidden="true">CD</span>
+              <div><strong>Detection Lab</strong><small>Research results</small></div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.caption("Explore the study in two simple steps.")
+        for page in NAVIGATION_AREAS:
+            active = st.session_state[_ACTIVE_PAGE_KEY] == page
+            st.button(
+                _NAVIGATION_LABELS[page],
+                key=f"nav-{page}",
+                type="primary" if active else "secondary",
+                use_container_width=True,
+                on_click=_select_page,
+                args=(st, page),
+            )
+        selected = str(st.session_state[_ACTIVE_PAGE_KEY])
+        st.markdown(
+            f'<p class="nav-current" aria-current="page">Viewing: {selected}</p>',
+            unsafe_allow_html=True,
+        )
+    return selected
+
+
+def _select_page(st: Any, page: str) -> None:
+    """Update navigation state before Streamlit reruns the page."""
+    st.session_state[_ACTIVE_PAGE_KEY] = page
+
+
+def _render_unavailable(st: Any, data: DashboardData) -> None:
+    st.markdown(
+        """
+        <section class="page-intro compact">
+          <h1>Saved evidence unavailable</h1>
+          <p>The dashboard needs one complete, validated synthetic study
+          before it can show results.</p>
+        </section>
+        """,
+        unsafe_allow_html=True,
     )
-    st.subheader("Data source & terms")
-    st.markdown(f"[Official CIC-IDS2017 source and access terms]({_DATA_SOURCE_URL})")
-    st.caption(
-        "Raw licensed inputs remain local and are not displayed or redistributed by this dashboard."
+    st.error(data.message)
+    st.write("Nothing was generated, trained, or scored by this dashboard.")
+    st.markdown(
+        "1. Generate a complete deterministic synthetic study with the reproduction command.\n\n"
+        "2. Keep the generated metadata, metrics, run records, audit, and demo files together.\n\n"
+        "3. Point `CYBERATTACK_ARTIFACT_ROOT` to that saved output and restart the app."
     )
-    st.subheader("Saved provenance")
-    _table(
-        st,
-        pd.DataFrame(
-            [
-                (
-                    "Experiment identifier",
-                    data.metadata.get("experiment_identifier", "Not recorded"),
-                ),
-                ("Artifact version", data.metadata.get("artifact_version", "Not recorded")),
-                ("Data checksum", data.metadata.get("data_checksum_sha256", "Not recorded")),
-                ("Seeds", data.metadata.get("seeds", "Not recorded")),
-                ("Limitations", data.metadata.get("limitations", "Not recorded")),
-            ],
-            columns=["Field", "Saved value"],
-        ),
+
+
+def _research_overview(st: Any, data: DashboardData) -> None:
+    st.markdown(
+        """
+        <section class="research-hero" aria-labelledby="research-title">
+          <div class="hero-copy">
+            <span class="eyebrow">Research Overview</span>
+            <h1 id="research-title">Cyberattack Detection Research Results</h1>
+            <p class="hero-subtitle">A clear comparison of how four machine-learning models
+            detect suspicious synthetic traffic while keeping false alarms under control.
+            The fully generated traffic is designed as a development stand-in for the flow
+            structure and attack scenarios studied in CIC-IDS2017; it does not use or
+            reproduce CIC-IDS2017 records.</p>
+          </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
     )
-    st.subheader("Saved data profile")
-    audit = data.cleaning_audit
-    output = _mapping(audit.get("output"))
-    class_counts = _mapping(audit.get("class_counts"))
-    capture_days = sorted(
+    st.markdown(
+        """
+        <div class="pattern-grid" role="group" aria-label="Normal and suspicious flow patterns">
+          <article class="pattern-card">
+            <span class="card-icon" aria-hidden="true">✓</span>
+            <strong>Normal pattern</strong>
+            <p>A steady synthetic flow representing the study's benign class.</p>
+            <div class="flow-line" aria-hidden="true">● ─ ● ─ ● ─ ●</div>
+          </article>
+          <article class="pattern-card suspicious">
+            <span class="card-icon" aria-hidden="true">!</span>
+            <strong>Suspicious pattern</strong>
+            <p>A synthetic flow with characteristics associated with the attack class.</p>
+            <div class="flow-line" aria-hidden="true">● ━ ▲ ━ ● ╳ ▲</div>
+          </article>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.caption("These shapes explain the idea; they are not live traffic or model predictions.")
+
+    st.markdown(
+        """
+        <section class="content-section reveal-delay-one">
+          <span class="section-number">01</span>
+          <div><h2>Why synthetic data</h2>
+          <p>The same declared seed recreates the same study data, making the comparison safe
+          to share and easy to repeat. The data is designed for this research demonstration
+          and does not represent a real organization or live network.</p></div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        """
+        <section class="workflow-section reveal-delay-two" aria-labelledby="workflow-title">
+          <span class="eyebrow">Simple workflow</span>
+          <h2 id="workflow-title">How the study works</h2>
+          <div class="study-flow">
+            <article class="study-step"><b>1</b><strong>Generate</strong>
+            <span>Create repeatable synthetic flows.</span></article>
+            <article class="study-step"><b>2</b><strong>Prepare</strong>
+            <span>Check and clean the saved study data.</span></article>
+            <article class="study-step"><b>3</b><strong>Compare</strong>
+            <span>Evaluate four models fairly.</span></article>
+            <article class="study-step"><b>4</b><strong>Review</strong>
+            <span>Balance detection and false alarms.</span></article>
+          </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _results_and_comparison(st: Any, data: DashboardData) -> None:
+    st.markdown(
+        """
+        <section class="page-intro" aria-labelledby="results-title">
+          <span class="eyebrow">Model Results</span>
+          <h1 id="results-title">Results &amp; Model Comparison</h1>
+          <p>Compare the models using the two outcomes that matter most for this study.</p>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        """
+        <div class="metric-guide" aria-label="Plain-language result measures">
+          <article><span aria-hidden="true">◎</span><div><strong>Attack detection</strong>
+          <p>How many attack rows the model finds. Higher is better.</p></div></article>
+          <article><span aria-hidden="true">◇</span><div><strong>False alarms</strong>
+          <p>How often benign rows are incorrectly flagged. Lower is better.</p></div></article>
+          <article><span aria-hidden="true">★</span><div><strong>Overall recommendation</strong>
+          <p>The model favored by the study's predeclared saved-evidence rule.</p></div></article>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    cards = metric_card_summaries(data)[:2]
+    if cards:
+        columns = st.columns(2)
+        for column, card in zip(columns, cards, strict=True):
+            column.metric(card.label, card.value, help=card.detail)
+            column.caption(card.detail)
+    else:
+        st.info("Summary measures are unavailable because no validated comparison rows exist.")
+
+    recommendation = recommend_model_from_saved_evidence(data.metrics, data.seed_variation)
+    comparison = _beginner_comparison_table(data, recommendation)
+    st.markdown('<h2 class="section-heading">Model comparison</h2>', unsafe_allow_html=True)
+    if comparison.empty:
+        st.info("The model comparison is unavailable in this saved artifact.")
+    else:
+        _table(st, comparison, "Saved model comparison")
+
+    st.markdown(
+        '<h2 class="section-heading recommendation-heading">Overall recommendation</h2>',
+        unsafe_allow_html=True,
+    )
+    if recommendation.is_available:
+        st.markdown(_recommendation_card(comparison), unsafe_allow_html=True)
+    else:
+        st.info(recommendation.reason)
+
+
+def _beginner_comparison_table(
+    data: DashboardData, recommendation: ModelRecommendation
+) -> pd.DataFrame:
+    """Return only beginner-facing saved means with an explicit recommendation marker."""
+    summary = model_metric_summary_table(data)
+    if summary.empty:
+        return pd.DataFrame(columns=["Model", "Attack detection", "False alarms", "Result"])
+    selected = summary.loc[:, ["Model", "Model identifier", "Attack detection", "False-alarm rate"]]
+    result = pd.DataFrame(
         {
-            str(day)
-            for run in data.runs.values()
-            if "split_day" in run.scored_records.columns
-            for day in run.scored_records["split_day"].dropna()
+            "Model": selected["Model"],
+            "Attack detection": selected["Attack detection"].map(lambda value: f"{value:.1%}"),
+            "False alarms": selected["False-alarm rate"].map(lambda value: f"{value:.1%}"),
+            "Result": selected["Model identifier"].map(
+                lambda identifier: (
+                    "★ Recommended"
+                    if recommendation.is_available and identifier == recommendation.model_identifier
+                    else "Compared"
+                )
+            ),
         }
     )
-    _table(
-        st,
-        pd.DataFrame(
-            [
-                ("Raw rows", audit.get("raw_row_count", "Unavailable")),
-                ("Raw columns", audit.get("raw_column_count", "Unavailable")),
-                ("Cleaned rows", output.get("row_count", "Unavailable")),
-                ("Cleaned columns", output.get("column_count", "Unavailable")),
-                ("Class balance", class_counts or "Unavailable"),
-                ("Capture-day coverage", ", ".join(capture_days) or "Unavailable"),
-            ],
-            columns=["Field", "Saved value"],
-        ),
-    )
-    st.subheader("Schema preview")
-    schema = audit.get("feature_schema")
-    if isinstance(schema, list) and schema:
-        _table(st, pd.DataFrame(schema))
-    else:
-        st.info("Feature-schema preview is unavailable in this saved artifact.")
+    return result.reset_index(drop=True)
 
 
-def _cleaning(st: Any, data: DashboardData) -> None:
-    st.header("Cleaning & feature audit")
-    st.write("This screen reads saved audit metadata only; it never opens raw traffic records.")
-    audit = data.cleaning_audit
-    if not audit:
-        st.info("No compatible cleaning audit is attached to these saved artifacts.")
-        return
-    st.subheader("Row removal counts")
-    counts = _mapping(audit.get("row_removal_counts"))
-    _table(st, _mapping_table(counts, "Removal reason", "Rows removed"))
-    st.subheader("Dropped columns and reasons")
-    dropped = audit.get("dropped_columns")
-    if isinstance(dropped, list) and dropped:
-        _table(st, pd.DataFrame(dropped))
-    else:
-        st.info("Dropped-column decisions are unavailable in this saved audit.")
-    st.subheader("Target and leakage-review decisions")
-    _table(
-        st,
-        pd.DataFrame(
-            [
-                ("Binary target mapping", audit.get("label_mapping", "Unavailable")),
-                ("Temporal metadata", audit.get("split_metadata", "Unavailable")),
-                (
-                    "Feature-use decision",
-                    "Saved metadata is manifest-only where stated; identifiers and "
-                    "post-label fields stay excluded.",
-                ),
-            ],
-            columns=["Decision", "Saved evidence"],
-        ),
-    )
-    st.subheader("Safe schema/sample download")
-    st.info(
-        "No saved redacted clean-data sample is available for download. The saved schema "
-        "preview is shown in Overview & provenance instead."
-    )
-    st.subheader("Feature groups")
-    st.info(
-        "Feature-group definitions are not separately persisted by this artifact; "
-        "only frozen ablation outputs are shown in Errors & ablations."
+def _recommendation_card(table: pd.DataFrame) -> str:
+    row = table.loc[table["Result"] == "★ Recommended"].iloc[0]
+    return (
+        '<section class="recommendation-card" aria-label="Overall model recommendation">'
+        '<span class="recommendation-star" aria-hidden="true">★</span><div>'
+        '<span class="recommendation-label">Recommended from saved evidence</span>'
+        f"<h3>{row['Model']}</h3><p>Attack detection <strong>{row['Attack detection']}</strong> · "
+        f"False alarms <strong>{row['False alarms']}</strong>.</p>"
+        "<small>The recommendation uses the unchanged predeclared research rule.</small>"
+        "</div></section>"
     )
 
 
-def _models(st: Any, data: DashboardData) -> None:
-    st.header("Models & comparison")
-    st.write("Comparison values are copied from the validated frozen experiment ledger.")
-    table = model_comparison_table(data)
-    _table(st, table)
-    if "macro_f1" in table.columns:
-        st.bar_chart(table.set_index("model_config_identifier")["macro_f1"])
-    st.subheader("Recommended operating point")
-    st.info(
-        "Recommended operating point unavailable: the saved synthetic-development evidence "
-        "does not include a predeclared, validation-only model-selection artifact covering "
-        "attack recall, false alarms, calibration, temporal behavior, and seed variation."
+def _table(st: Any, frame: pd.DataFrame, label: str) -> None:
+    """Render an accessible semantic table with a responsive-scroll hint."""
+    st.markdown(
+        f'<div class="table-meta"><span>{label}</span>'
+        '<small class="table-scroll-hint">↔ Scroll sideways to see every column</small></div>',
+        unsafe_allow_html=True,
     )
-    st.subheader("Metric definitions")
-    _table(st, pd.DataFrame(METRIC_DEFINITIONS.items(), columns=["Metric", "Definition"]))
-    st.subheader("Model cards")
-    for run in _ordered_runs(data):
-        calibrated = _mapping(run.metrics.get("calibrated_test"))
-        _table(
-            st,
-            pd.DataFrame(
-                [
-                    ("Model", run.model_identifier),
-                    ("Protocol", run.split_kind),
-                    ("Seed", run.seed),
-                    ("Macro-F1", calibrated.get("macro_f1", "Unavailable")),
-                    ("Operating threshold", run.threshold),
-                    ("Predeclared max FPR", run.metrics.get("max_fpr", "Unavailable")),
-                ],
-                columns=["Model-card field", "Saved value"],
-            ),
-        )
-    st.subheader("Per-class metrics and confusion matrices")
-    _table(st, _per_class_and_confusion_table(data))
-    st.subheader("Seed variation")
-    if data.seed_variation.empty:
-        st.info("Seed-variation table is unavailable in this saved artifact.")
-    else:
-        _table(st, data.seed_variation)
-    st.subheader("Saved PR/ROC figures")
-    _figures(st, data, ("precision_recall.svg", "roc.svg"))
+    display = frame.fillna("Unavailable").astype(str)
+    st.table(display.style.apply(_recommended_row_styles, axis=1))
 
 
-def _shift(st: Any, data: DashboardData) -> None:
-    st.header("Shift & calibration")
-    st.warning(
-        "Chronological evaluation measures within-dataset shift only; "
-        "broader generalization is unproven."
+def _recommended_row_styles(row: pd.Series[Any]) -> list[str]:
+    """Emphasize the text-marked recommendation without relying only on color."""
+    if row.get("Result") != "★ Recommended":
+        return [""] * len(row)
+    declaration = (
+        "font-weight: 800; background-color: rgba(251, 191, 36, 0.10); "
+        "border-top: 1px solid rgba(251, 191, 36, 0.55); "
+        "border-bottom: 1px solid rgba(251, 191, 36, 0.55)"
     )
-    _table(st, shift_calibration_table(data))
-    st.subheader("Raw versus calibrated confidence")
-    _table(st, _raw_calibrated_table(data))
-    st.caption(
-        "Brier score and expected calibration error are lower-is-better confidence diagnostics. "
-        "The labelled operating point uses the saved validation-selected threshold."
-    )
-    st.subheader("Saved reliability figures")
-    _figures(st, data, ("reliability.svg",))
-
-
-def _analysis(st: Any, data: DashboardData) -> None:
-    st.header("Errors & ablations")
-    st.write(
-        "Rows are redacted saved summaries. Attack-family metadata may be unavailable "
-        "by the approved binary-data contract."
-    )
-    for heading, table, empty_message in (
-        (
-            "False-positive and false-negative slices",
-            error_slice_table(data),
-            "No saved error-slice analysis is attached to this artifact.",
-        ),
-        (
-            "Safe representative errors",
-            representative_error_table(data),
-            "No saved redacted representative errors are attached to this artifact.",
-        ),
-        (
-            "Frozen feature-group ablation",
-            ablation_table(data),
-            "No saved group-ablation result is attached to this artifact.",
-        ),
-    ):
-        st.subheader(heading)
-        if table.empty:
-            st.info(empty_message)
-        else:
-            _table(st, table)
-    ablations = ablation_table(data)
-    if not ablations.empty and "macro_f1" in ablations.columns:
-        st.bar_chart(ablations.set_index("group_name")["macro_f1"])
-    st.subheader("SHAP explanation status")
-    _table(st, pd.DataFrame([data.shap_status or {"status": "not available"}]))
-    st.caption("Any supported explanation is an association in this study, not a causal claim.")
-
-
-def _demo(st: Any, data: DashboardData) -> None:
-    st.header("Demo prediction")
-    st.warning(
-        "This is a deterministic replay of redacted, saved research rows. "
-        "It does not score live traffic or retrain a model."
-    )
-    st.subheader("Explanation status")
-    explanation = data.shap_status or {"status": "No saved explanation is available for this demo."}
-    _table(st, pd.DataFrame([explanation]))
-    if not data.examples:
-        st.info("No fixed saved demo examples are available for this artifact root.")
-        return
-    labels = {
-        str(example["id"]): str(example.get("title", example["id"])) for example in data.examples
-    }
-    selected = st.selectbox("Fixed demonstration example", tuple(labels), format_func=labels.get)
-    try:
-        result = render_demo_prediction(selected, data)
-    except ValueError as error:
-        st.error(str(error))
-        return
-    st.write(f"Saved reference class: {result.reference_target}")
-    _table(
-        st,
-        pd.DataFrame(
-            [
-                {
-                    "Model": prediction.model_identifier,
-                    "Saved label": prediction.predicted_label,
-                    "Saved attack probability": prediction.attack_probability,
-                    "Frozen threshold": prediction.threshold,
-                }
-                for prediction in result.predictions.values()
-            ]
-        ),
-    )
-
-    st.subheader("Selected example explanation")
-    st.info(
-        "No saved explanation is linked to this fixed example. The global SHAP status above "
-        "does not establish an example-level explanation."
-    )
-
-
-def _ordered_runs(data: DashboardData) -> list[DashboardRun]:
-    return [data.runs[key] for key in sorted(data.runs)]
-
-
-def _per_class_and_confusion_table(data: DashboardData) -> pd.DataFrame:
-    rows: list[dict[str, object]] = []
-    for run in _ordered_runs(data):
-        result = _mapping(run.metrics.get("calibrated_test"))
-        classes = _mapping(result.get("per_class"))
-        confusion = _mapping(result.get("confusion_matrix"))
-        for label, values in classes.items():
-            row: dict[str, object] = {
-                "Model": run.model_identifier,
-                "Protocol": run.split_kind,
-                "Class": str(label),
-            }
-            row.update(_mapping(values))
-            row.update({f"confusion_{key}": value for key, value in confusion.items()})
-            rows.append(row)
-    return pd.DataFrame(rows)
-
-
-def _raw_calibrated_table(data: DashboardData) -> pd.DataFrame:
-    rows: list[dict[str, object]] = []
-    for run in _ordered_runs(data):
-        for state in ("raw_test", "calibrated_test"):
-            result = _mapping(run.metrics.get(state))
-            rows.append(
-                {
-                    "Model": run.model_identifier,
-                    "Protocol": run.split_kind,
-                    "Confidence state": state.removesuffix("_test"),
-                    "Macro-F1": result.get("macro_f1", "Unavailable"),
-                    "Brier score": result.get("brier_score", "Unavailable"),
-                    "Expected calibration error": result.get(
-                        "expected_calibration_error", "Unavailable"
-                    ),
-                    "Threshold": result.get("threshold", "Unavailable"),
-                }
-            )
-    return pd.DataFrame(rows)
-
-
-def _figures(st: Any, data: DashboardData, names: tuple[str, ...]) -> None:
-    available = [
-        (run, name, run.figure_paths[name])
-        for run in _ordered_runs(data)
-        for name in names
-        if name in run.figure_paths
-    ]
-    if not available:
-        st.info(
-            "The corresponding saved figure is unavailable; the accessible saved "
-            "tables above remain available."
-        )
-        return
-    for run, name, path in available:
-        st.image(
-            str(path),
-            caption=f"Saved {name} — {run.model_identifier} ({run.split_kind}, seed {run.seed})",
-        )
-
-
-def _mapping(value: object) -> dict[str, object]:
-    return cast(dict[str, object], value) if isinstance(value, Mapping) else {}
-
-
-def _mapping_table(values: dict[str, object], key_name: str, value_name: str) -> pd.DataFrame:
-    return pd.DataFrame(list(values.items()), columns=[key_name, value_name])
-
-
-def _table(st: Any, frame: pd.DataFrame) -> None:
-    """Render tables as strings to avoid losing mixed saved audit values in Arrow conversion."""
-    st.table(frame.fillna("Unavailable").astype(str))
+    return [declaration] * len(row)
 
 
 PAGE_RENDERERS: dict[str, Callable[[Any, DashboardData], None]] = {
-    "Overview & provenance": _overview,
-    "Cleaning & feature audit": _cleaning,
-    "Models & comparison": _models,
-    "Shift & calibration": _shift,
-    "Errors & ablations": _analysis,
-    "Demo prediction": _demo,
+    "Research Overview": _research_overview,
+    "Results & Model Comparison": _results_and_comparison,
 }
 
 

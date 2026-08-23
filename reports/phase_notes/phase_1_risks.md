@@ -1,3 +1,4 @@
+> **Historical evidence — superseded by Phase 8 synthetic-only redesign.** This note records an earlier release state only. It is not an active instruction, input requirement, or claim for the current synthetic-only study.
 # Phase 1 — Data Readiness Risks and Decisions
 
 ## Active items
@@ -5,7 +6,7 @@
 - **Dataset access and redistribution:** CIC-IDS2017 flow CSVs are publicly available to researchers through the official CIC/UNB dataset page. The page requires citation of the associated 2018 paper. Raw files remain local and ignored; this repository will not redistribute them.
 - **Raw input not yet present:** No checksum, source-file inventory, or observed schema can be recorded until an approved local download is available in `data/raw/`.
 - **Leakage risk:** source filenames, row order, raw timestamps, network identifiers, and label-proxy/post-event fields must be excluded from model features unless a later written audit decision permits them.
-- **Synthetic-data limitation:** `data/synthetic/cicids2017_synthetic.csv` is a compact development-only stand-in. It is not derived from, and is not an exact replica of, CIC-IDS2017. Its model results must never be reported as CIC-IDS2017 results.
+- **Synthetic-data limitation:** `data/synthetic/network_flows_synthetic.csv` is a compact development-only stand-in. It is not derived from, and is not an exact replica of, CIC-IDS2017. Its model results must never be reported as CIC-IDS2017 results.
 
 ## Completed in this phase
 

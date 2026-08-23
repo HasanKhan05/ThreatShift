@@ -27,23 +27,15 @@ from .ledger import append_ledger_row
 from .metrics import EvaluationResult, evaluate_predictions, select_threshold
 
 _PRIMARY_MODEL_NAMES = frozenset({"majority", "logistic_regression", "random_forest", "mlp"})
-_EVIDENCE_SCOPES = frozenset({"synthetic_development", "approved_local_cicids2017"})
+_EVIDENCE_SCOPE = "synthetic_development"
 
 
-def _limitations(evidence_scope: str) -> str:
-    if evidence_scope == "synthetic_development":
-        return (
-            "Synthetic development data only; this is not a CIC-IDS2017 result "
-            "or a production IDS claim. "
-            "The temporal protocol measures within-dataset shift and does not "
-            "establish zero-day detection."
-        )
+def _limitations() -> str:
     return (
-        "Approved local CIC-IDS2017 input scope; this research result is not "
-        "a production IDS claim. "
+        "Synthetic development data only; this is not a live-network result "
+        "or a production IDS claim. "
         "The temporal protocol measures within-dataset shift and does not "
-        "establish zero-day detection "
-        "or real-world generalization."
+        "establish zero-day detection."
     )
 
 
@@ -59,6 +51,8 @@ class ExperimentConfig:
     model_config_paths: tuple[Path, ...]
     splits: tuple[SplitProtocol, ...]
     evidence_scope: str
+    synthetic_provenance: dict[str, object]
+    synthetic_provenance_checksum_sha256: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -208,6 +202,11 @@ def run_experiment(config_path: Path) -> ExperimentArtifact:
                 _write_json(
                     run_path / "metadata.json",
                     {
+                        "evidence_scope": config.evidence_scope,
+                        "synthetic_provenance": config.synthetic_provenance,
+                        "synthetic_provenance_checksum_sha256": (
+                            config.synthetic_provenance_checksum_sha256
+                        ),
                         "analysis_source": {
                             "calibration_fit_partition": "validation",
                             "calibration_method": "platt_sigmoid",
@@ -293,7 +292,9 @@ def run_experiment(config_path: Path) -> ExperimentArtifact:
             "experiment_identifier": config.identifier,
             "ledger_path": str(config.ledger_path),
             "evidence_scope": config.evidence_scope,
-            "limitations": _limitations(config.evidence_scope),
+            "synthetic_provenance": config.synthetic_provenance,
+            "synthetic_provenance_checksum_sha256": (config.synthetic_provenance_checksum_sha256),
+            "limitations": _limitations(),
             "manifest_checksums": {
                 kind: manifest.manifest_checksum_sha256 for kind, manifest in manifests.items()
             },
@@ -344,7 +345,9 @@ def _load_experiment_config(path: Path) -> ExperimentConfig:
         raise ValueError("experiment.seeds must be a non-empty list of integer seeds")
     if len(set(seeds)) != len(seeds):
         raise ValueError("experiment.seeds must not contain duplicates")
-    evidence_scope = _evidence_scope(values.get("evidence_scope", "synthetic_development"))
+    evidence_scope = _evidence_scope(values.get("evidence_scope"))
+    synthetic_provenance = _synthetic_provenance(values.get("synthetic_provenance"))
+    synthetic_provenance_checksum = _required_sha256(values, "synthetic_provenance_checksum_sha256")
     raw_model_paths = values.get("model_config_paths")
     if not isinstance(raw_model_paths, list) or not raw_model_paths:
         raise ValueError("experiment.model_config_paths must be a non-empty list")
@@ -369,15 +372,30 @@ def _load_experiment_config(path: Path) -> ExperimentConfig:
         model_config_paths=tuple(_resolve_path(item, path) for item in raw_model_paths),
         splits=splits,
         evidence_scope=evidence_scope,
+        synthetic_provenance=synthetic_provenance,
+        synthetic_provenance_checksum_sha256=synthetic_provenance_checksum,
     )
 
 
 def _evidence_scope(value: object) -> str:
-    if not isinstance(value, str) or value not in _EVIDENCE_SCOPES:
-        raise ValueError(
-            "experiment.evidence_scope must be synthetic_development or approved_local_cicids2017"
-        )
-    return value
+    if value != _EVIDENCE_SCOPE:
+        raise ValueError("experiment.evidence_scope must be synthetic_development")
+    return _EVIDENCE_SCOPE
+
+
+def _synthetic_provenance(value: object) -> dict[str, object]:
+    if not isinstance(value, dict):
+        raise ValueError("experiment.synthetic_provenance must be a mapping")
+    provenance = cast(dict[str, object], value)
+    if provenance.get("is_synthetic") is not True:
+        raise ValueError("experiment.synthetic_provenance must declare is_synthetic true")
+    if provenance.get("dataset_identifier") != "deterministic-synthetic-network-flows":
+        raise ValueError("experiment.synthetic_provenance has an unsupported dataset identifier")
+    for field in ("csv_checksum_sha256", "configuration_checksum_sha256"):
+        checksum = provenance.get(field)
+        if not isinstance(checksum, str) or not _is_sha256(checksum):
+            raise ValueError(f"experiment.synthetic_provenance has invalid {field}")
+    return provenance
 
 
 def _split_protocol(value: object) -> SplitProtocol:
@@ -406,6 +424,7 @@ def _load_cleaned_inputs(config: ExperimentConfig) -> tuple[pd.DataFrame, Featur
         audit = json.loads(config.cleaning_audit_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
         raise ValueError("unable to read cleaning audit JSON") from error
+    _validate_cleaning_provenance(audit, config)
     if not isinstance(audit, dict) or not isinstance(audit.get("feature_schema"), list):
         raise ValueError("cleaning audit must contain feature_schema")
     output = audit.get("output")
@@ -419,6 +438,27 @@ def _load_cleaned_inputs(config: ExperimentConfig) -> tuple[pd.DataFrame, Featur
         FeatureSchema.from_clean_schema(cast(list[Mapping[str, str]], audit["feature_schema"])),
         checksum,
     )
+
+
+def _validate_cleaning_provenance(audit: object, config: ExperimentConfig) -> None:
+    if not isinstance(audit, dict):
+        raise ValueError("cleaning audit must be a mapping")
+    provenance = audit.get("synthetic_provenance")
+    checksum = audit.get("synthetic_provenance_checksum_sha256")
+    if provenance != config.synthetic_provenance:
+        raise ValueError("cleaning audit synthetic_provenance disagrees with experiment config")
+    if checksum != config.synthetic_provenance_checksum_sha256:
+        raise ValueError("cleaning audit synthetic provenance checksum disagrees with config")
+    if not isinstance(provenance, dict) or provenance.get("is_synthetic") is not True:
+        raise ValueError("cleaning audit requires verified synthetic provenance")
+    input_files = audit.get("input_files")
+    if not isinstance(input_files, list) or len(input_files) != 1:
+        raise ValueError("synthetic cleaning audit must bind exactly one generated CSV")
+    input_record = input_files[0]
+    if not isinstance(input_record, dict) or input_record.get("sha256") != provenance.get(
+        "csv_checksum_sha256"
+    ):
+        raise ValueError("cleaning audit input checksum disagrees with synthetic provenance")
 
 
 def _validate_primary_models(configs: Sequence[ModelConfig]) -> None:
@@ -514,7 +554,7 @@ def _metric_row(
         "false_positive_rate_at_predeclared_threshold": fpr_at_predeclared_threshold,
         "fit_seconds": fit_seconds,
         "inference_seconds": inference_seconds,
-        "limitations": _limitations(config.evidence_scope),
+        "limitations": _limitations(),
         "macro_f1": metrics.macro_f1,
         "max_fpr": config.max_fpr,
         "manifest_checksum_sha256": manifest.manifest_checksum_sha256,
@@ -655,6 +695,17 @@ def _required_string(values: Mapping[str, object], field: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"experiment.{field} must be a non-empty string")
     return value
+
+
+def _required_sha256(values: Mapping[str, object], field: str) -> str:
+    value = _required_string(values, field)
+    if not _is_sha256(value):
+        raise ValueError(f"experiment.{field} must be a lowercase SHA-256 checksum")
+    return value
+
+
+def _is_sha256(value: str) -> bool:
+    return len(value) == 64 and all(character in "0123456789abcdef" for character in value)
 
 
 def _required_path(values: Mapping[str, object], field: str, config_path: Path) -> Path:

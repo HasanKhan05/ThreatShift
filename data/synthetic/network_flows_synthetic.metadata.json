@@ -1,0 +1,459 @@
+{
+  "assumptions": [
+    "Records are independent synthetic flow summaries within each declared period.",
+    "Labels and attack families are generator annotations, not observed incidents.",
+    "The later-period intervention is deliberately controlled and known."
+  ],
+  "configuration_checksum_sha256": "3ea38966f0b2cf85b36281cd57d7e6ede571d8004db5a6bf9a045841cdb55712",
+  "controlled_shift": {
+    "interpretation": "Controlled within-scenario temporal shift only.",
+    "interventions": [
+      "Higher attack prevalence in periods 4 and 5.",
+      "Increased traffic volume in periods 4 and 5.",
+      "Increased SYN activity in periods 4 and 5."
+    ],
+    "starts_in_period": "period-4"
+  },
+  "csv_checksum_sha256": "ab3ee104e4de7de32b2282abc068dd85f510ea0b9919c5fe0382b6d59456563a",
+  "dataset_identifier": "deterministic-synthetic-network-flows",
+  "defective_row_count": 44,
+  "emitted_row_count": 12044,
+  "expected_columns": [
+    "Flow ID",
+    "Source IP",
+    "Destination IP",
+    "Timestamp",
+    "Traffic Period",
+    "Attack Family",
+    "Flow Duration",
+    "Total Fwd Packets",
+    "Total Backward Packets",
+    "Total Length of Fwd Packets",
+    "Total Length of Bwd Packets",
+    "Fwd Packet Length Mean",
+    "Bwd Packet Length Mean",
+    "Flow Bytes/s",
+    "Flow Packets/s",
+    "Flow IAT Mean",
+    "SYN Flag Count",
+    "ACK Flag Count",
+    "Down/Up Ratio",
+    "Average Packet Size",
+    "Idle Mean",
+    "Active Mean",
+    "Label"
+  ],
+  "feature_definitions": [
+    {
+      "description": "Synthetic elapsed flow time.",
+      "maximum": 20000000.0,
+      "minimum": 100.0,
+      "name": "Flow Duration",
+      "unit": "microseconds"
+    },
+    {
+      "description": "Synthetic forward packet count.",
+      "maximum": 50000.0,
+      "minimum": 1.0,
+      "name": "Total Fwd Packets",
+      "unit": "packets"
+    },
+    {
+      "description": "Synthetic backward packet count.",
+      "maximum": 50000.0,
+      "minimum": 0.0,
+      "name": "Total Backward Packets",
+      "unit": "packets"
+    },
+    {
+      "description": "Synthetic forward payload total.",
+      "maximum": 1000000000.0,
+      "minimum": 40.0,
+      "name": "Total Length of Fwd Packets",
+      "unit": "bytes"
+    },
+    {
+      "description": "Synthetic backward payload total.",
+      "maximum": 1000000000.0,
+      "minimum": 0.0,
+      "name": "Total Length of Bwd Packets",
+      "unit": "bytes"
+    },
+    {
+      "description": "Forward bytes divided by forward packets.",
+      "maximum": 65535.0,
+      "minimum": 0.0,
+      "name": "Fwd Packet Length Mean",
+      "unit": "bytes_per_packet"
+    },
+    {
+      "description": "Backward bytes divided by backward packets.",
+      "maximum": 65535.0,
+      "minimum": 0.0,
+      "name": "Bwd Packet Length Mean",
+      "unit": "bytes_per_packet"
+    },
+    {
+      "description": "Synthetic byte throughput.",
+      "maximum": 1000000000000.0,
+      "minimum": 0.0,
+      "name": "Flow Bytes/s",
+      "unit": "bytes_per_second"
+    },
+    {
+      "description": "Synthetic packet throughput.",
+      "maximum": 1000000000.0,
+      "minimum": 0.0,
+      "name": "Flow Packets/s",
+      "unit": "packets_per_second"
+    },
+    {
+      "description": "Mean synthetic inter-arrival time.",
+      "maximum": 20000000.0,
+      "minimum": 0.0,
+      "name": "Flow IAT Mean",
+      "unit": "microseconds"
+    },
+    {
+      "description": "Synthetic SYN flag count bounded by forward packets.",
+      "maximum": 50000.0,
+      "minimum": 0.0,
+      "name": "SYN Flag Count",
+      "unit": "flags"
+    },
+    {
+      "description": "Synthetic ACK flag count bounded by total packets.",
+      "maximum": 100000.0,
+      "minimum": 0.0,
+      "name": "ACK Flag Count",
+      "unit": "flags"
+    },
+    {
+      "description": "Backward packets divided by forward packets.",
+      "maximum": 50000.0,
+      "minimum": 0.0,
+      "name": "Down/Up Ratio",
+      "unit": "ratio"
+    },
+    {
+      "description": "Total bytes divided by total packets.",
+      "maximum": 65535.0,
+      "minimum": 0.0,
+      "name": "Average Packet Size",
+      "unit": "bytes_per_packet"
+    },
+    {
+      "description": "Synthetic mean idle interval.",
+      "maximum": 20000000.0,
+      "minimum": 0.0,
+      "name": "Idle Mean",
+      "unit": "microseconds"
+    },
+    {
+      "description": "Synthetic mean active interval.",
+      "maximum": 20000000.0,
+      "minimum": 0.0,
+      "name": "Active Mean",
+      "unit": "microseconds"
+    }
+  ],
+  "generator_id": "cyberattack_detection.synthetic_network_flows",
+  "generator_version": "1.0.0",
+  "is_synthetic": true,
+  "label_counts": {
+    "ATTACK": 4228,
+    "BENIGN": 7808
+  },
+  "limitations": [
+    "This dataset is generated and is not captured network traffic.",
+    "Synthetic utility does not establish privacy or real-network realism.",
+    "Results do not demonstrate zero-day detection or production readiness.",
+    "Generalization to organizations, devices, or live traffic is untested."
+  ],
+  "model_feature_columns": [
+    "Flow Duration",
+    "Total Fwd Packets",
+    "Total Backward Packets",
+    "Total Length of Fwd Packets",
+    "Total Length of Bwd Packets",
+    "Fwd Packet Length Mean",
+    "Bwd Packet Length Mean",
+    "Flow Bytes/s",
+    "Flow Packets/s",
+    "Flow IAT Mean",
+    "SYN Flag Count",
+    "ACK Flag Count",
+    "Down/Up Ratio",
+    "Average Packet Size",
+    "Idle Mean",
+    "Active Mean"
+  ],
+  "ordered_periods": [
+    "period-1",
+    "period-2",
+    "period-3",
+    "period-4",
+    "period-5"
+  ],
+  "period_counts": {
+    "period-1": 2444,
+    "period-2": 2400,
+    "period-3": 2400,
+    "period-4": 2400,
+    "period-5": 2400
+  },
+  "period_label_counts": {
+    "period-1": {
+      "ATTACK": 484,
+      "BENIGN": 1952
+    },
+    "period-2": {
+      "ATTACK": 576,
+      "BENIGN": 1824
+    },
+    "period-3": {
+      "ATTACK": 672,
+      "BENIGN": 1728
+    },
+    "period-4": {
+      "ATTACK": 1152,
+      "BENIGN": 1248
+    },
+    "period-5": {
+      "ATTACK": 1344,
+      "BENIGN": 1056
+    }
+  },
+  "planned_defects": {
+    "duplicate_rows": 24,
+    "missing_label_rows": 8,
+    "nonfinite_feature_rows": 12
+  },
+  "requested_valid_row_count": 12000,
+  "scenario_checksum_sha256": "3ea38966f0b2cf85b36281cd57d7e6ede571d8004db5a6bf9a045841cdb55712",
+  "scenario_configuration": {
+    "assumptions": [
+      "Records are independent synthetic flow summaries within each declared period.",
+      "Labels and attack families are generator annotations, not observed incidents.",
+      "The later-period intervention is deliberately controlled and known."
+    ],
+    "attack_families": {
+      "credential-abuse": 0.15,
+      "denial-of-service": 0.45,
+      "scanning": 0.3,
+      "web-exploitation": 0.1
+    },
+    "controlled_shift": {
+      "interpretation": "Controlled within-scenario temporal shift only.",
+      "interventions": [
+        "Higher attack prevalence in periods 4 and 5.",
+        "Increased traffic volume in periods 4 and 5.",
+        "Increased SYN activity in periods 4 and 5."
+      ],
+      "starts_in_period": "period-4"
+    },
+    "cross_field_constraints": [
+      "SYN Flag Count cannot exceed Total Fwd Packets.",
+      "ACK Flag Count cannot exceed total packet count.",
+      "Packet-length means and rates are derived from their component fields.",
+      "Idle Mean plus Active Mean cannot exceed Flow Duration."
+    ],
+    "dataset_identifier": "deterministic-synthetic-network-flows",
+    "feature_definitions": [
+      {
+        "description": "Synthetic elapsed flow time.",
+        "maximum": 20000000.0,
+        "minimum": 100.0,
+        "name": "Flow Duration",
+        "unit": "microseconds"
+      },
+      {
+        "description": "Synthetic forward packet count.",
+        "maximum": 50000.0,
+        "minimum": 1.0,
+        "name": "Total Fwd Packets",
+        "unit": "packets"
+      },
+      {
+        "description": "Synthetic backward packet count.",
+        "maximum": 50000.0,
+        "minimum": 0.0,
+        "name": "Total Backward Packets",
+        "unit": "packets"
+      },
+      {
+        "description": "Synthetic forward payload total.",
+        "maximum": 1000000000.0,
+        "minimum": 40.0,
+        "name": "Total Length of Fwd Packets",
+        "unit": "bytes"
+      },
+      {
+        "description": "Synthetic backward payload total.",
+        "maximum": 1000000000.0,
+        "minimum": 0.0,
+        "name": "Total Length of Bwd Packets",
+        "unit": "bytes"
+      },
+      {
+        "description": "Forward bytes divided by forward packets.",
+        "maximum": 65535.0,
+        "minimum": 0.0,
+        "name": "Fwd Packet Length Mean",
+        "unit": "bytes_per_packet"
+      },
+      {
+        "description": "Backward bytes divided by backward packets.",
+        "maximum": 65535.0,
+        "minimum": 0.0,
+        "name": "Bwd Packet Length Mean",
+        "unit": "bytes_per_packet"
+      },
+      {
+        "description": "Synthetic byte throughput.",
+        "maximum": 1000000000000.0,
+        "minimum": 0.0,
+        "name": "Flow Bytes/s",
+        "unit": "bytes_per_second"
+      },
+      {
+        "description": "Synthetic packet throughput.",
+        "maximum": 1000000000.0,
+        "minimum": 0.0,
+        "name": "Flow Packets/s",
+        "unit": "packets_per_second"
+      },
+      {
+        "description": "Mean synthetic inter-arrival time.",
+        "maximum": 20000000.0,
+        "minimum": 0.0,
+        "name": "Flow IAT Mean",
+        "unit": "microseconds"
+      },
+      {
+        "description": "Synthetic SYN flag count bounded by forward packets.",
+        "maximum": 50000.0,
+        "minimum": 0.0,
+        "name": "SYN Flag Count",
+        "unit": "flags"
+      },
+      {
+        "description": "Synthetic ACK flag count bounded by total packets.",
+        "maximum": 100000.0,
+        "minimum": 0.0,
+        "name": "ACK Flag Count",
+        "unit": "flags"
+      },
+      {
+        "description": "Backward packets divided by forward packets.",
+        "maximum": 50000.0,
+        "minimum": 0.0,
+        "name": "Down/Up Ratio",
+        "unit": "ratio"
+      },
+      {
+        "description": "Total bytes divided by total packets.",
+        "maximum": 65535.0,
+        "minimum": 0.0,
+        "name": "Average Packet Size",
+        "unit": "bytes_per_packet"
+      },
+      {
+        "description": "Synthetic mean idle interval.",
+        "maximum": 20000000.0,
+        "minimum": 0.0,
+        "name": "Idle Mean",
+        "unit": "microseconds"
+      },
+      {
+        "description": "Synthetic mean active interval.",
+        "maximum": 20000000.0,
+        "minimum": 0.0,
+        "name": "Active Mean",
+        "unit": "microseconds"
+      }
+    ],
+    "generator_id": "cyberattack_detection.synthetic_network_flows",
+    "generator_version": "1.0.0",
+    "label_column": "Label",
+    "limitations": [
+      "This dataset is generated and is not captured network traffic.",
+      "Synthetic utility does not establish privacy or real-network realism.",
+      "Results do not demonstrate zero-day detection or production readiness.",
+      "Generalization to organizations, devices, or live traffic is untested."
+    ],
+    "metadata_columns": [
+      "Flow ID",
+      "Source IP",
+      "Destination IP",
+      "Timestamp",
+      "Traffic Period",
+      "Attack Family"
+    ],
+    "model_feature_columns": [
+      "Flow Duration",
+      "Total Fwd Packets",
+      "Total Backward Packets",
+      "Total Length of Fwd Packets",
+      "Total Length of Bwd Packets",
+      "Fwd Packet Length Mean",
+      "Bwd Packet Length Mean",
+      "Flow Bytes/s",
+      "Flow Packets/s",
+      "Flow IAT Mean",
+      "SYN Flag Count",
+      "ACK Flag Count",
+      "Down/Up Ratio",
+      "Average Packet Size",
+      "Idle Mean",
+      "Active Mean"
+    ],
+    "periods": [
+      {
+        "attack_prevalence": 0.2,
+        "date": "2026-01-05",
+        "id": "period-1",
+        "syn_shift": 0.0,
+        "traffic_scale": 1.0
+      },
+      {
+        "attack_prevalence": 0.24,
+        "date": "2026-01-06",
+        "id": "period-2",
+        "syn_shift": 0.05,
+        "traffic_scale": 1.05
+      },
+      {
+        "attack_prevalence": 0.28,
+        "date": "2026-01-07",
+        "id": "period-3",
+        "syn_shift": 0.1,
+        "traffic_scale": 1.1
+      },
+      {
+        "attack_prevalence": 0.48,
+        "date": "2026-01-08",
+        "id": "period-4",
+        "syn_shift": 0.75,
+        "traffic_scale": 1.3
+      },
+      {
+        "attack_prevalence": 0.56,
+        "date": "2026-01-09",
+        "id": "period-5",
+        "syn_shift": 1.1,
+        "traffic_scale": 1.45
+      }
+    ],
+    "planned_defects": {
+      "duplicate_rows": 24,
+      "missing_label_rows": 8,
+      "nonfinite_feature_rows": 12
+    },
+    "scenario_version": "1.0.0",
+    "schema_version": "1.0"
+  },
+  "scenario_version": "1.0.0",
+  "schema_version": "1.0",
+  "seed": 1729
+}

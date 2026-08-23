@@ -1,4 +1,4 @@
-"""Comparable binary detection models for synthetic development and future CIC studies."""
+"""Comparable binary detection models for the synthetic research study."""
 
 from .base import ModelConfig, ModelInput, TrainedModel, fit_model, load_model_config
 

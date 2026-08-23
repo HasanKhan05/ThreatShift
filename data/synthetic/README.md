@@ -1,23 +1,26 @@
-# Synthetic development dataset
+# Versioned deterministic synthetic network-flow fixture
 
-`cicids2017_synthetic.csv` is a small, deterministic **synthetic** CSV for
-developing and testing this repository before official CIC-IDS2017 data is
-available locally. It is not derived from, and is not an exact replica of,
-CIC-IDS2017. Never present model metrics from this file as CIC-IDS2017 results.
+The CSV and adjacent metadata JSON are a small checked-in fixture generated from
+`configs/synthetic_scenario.yaml`. They are synthetic: they are not captured
+traffic, are not derived from a private or public operational dataset, and do
+not establish privacy, real-network realism, zero-day detection, or production
+readiness.
 
-Regenerate it from the repository root with the fixed seed and intended
-retained-row count:
+Regenerate the canonical pair from the repository root:
 
 ```powershell
-.\.venv\Scripts\python.exe -c "from pathlib import Path; from data.synthetic import generate_synthetic_cicids2017; generate_synthetic_cicids2017(Path('data/synthetic/cicids2017_synthetic.csv'), seed=1729, valid_rows=12000)"
+uv run --frozen python -c "from pathlib import Path; from data.synthetic import generate_synthetic_network_flows; generate_synthetic_network_flows(Path('data/synthetic/network_flows_synthetic.csv'), seed=1729, valid_rows=12000)"
 ```
 
-The adjacent metadata file records its SHA-256 checksum, generator, seed,
-feature list, and limitations. The CSV intentionally contains whitespace in
-headers and labels, missing labels, non-numeric/non-finite numeric values,
-and duplicate feature/target rows. It also contains flow IDs, IP addresses,
-timestamps, and attack-category fields so the cleaning pipeline can prove that
-leakage-prone fields are removed.
+The sidecar records schema, generator, and scenario versions; seed; requested
+and emitted row counts; label and ordered-period counts; feature units/ranges;
+assumptions; the controlled later-period shift; scenario and CSV checksums;
+planned cleaning defects; leakage exclusions; and limitations. The validator
+reconstructs the declared deterministic output and rejects missing, malformed,
+unsupported, inconsistent, or tampered CSV/sidecar pairs before synthetic
+cleaning can write outputs.
 
-Real-data validation, provenance recording, and any CIC-IDS2017 metrics remain
-pending the user obtaining the official CSV files under `data/raw/`.
+The 44 planned defect rows exercise the cleaning audit: 8 missing labels,
+12 non-finite numeric values, and 24 duplicate feature/target records. Cleaning
+retains 12,000 valid rows. Flow IDs, IPs, timestamps, traffic periods, attack
+families, labels, and row order are never model features.

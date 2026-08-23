@@ -17,12 +17,12 @@ def test_load_project_config_exposes_the_required_reproducible_contract() -> Non
 
     assert config.project_name == "Cyberattack Detection Using Machine Learning"
     assert config.python_requires == ">=3.11"
-    assert config.primary_dataset == "CIC-IDS2017"
+    assert config.primary_dataset == "deterministic-synthetic-network-flows"
     assert config.task_name == "binary_benign_vs_attack"
     assert config.negative_label == "BENIGN"
     assert config.positive_label == "ATTACK"
-    assert config.raw_data_dir == Path("data/raw")
     assert config.artifacts_dir == Path("artifacts")
+    assert not hasattr(config, "raw_data_dir")
 
 
 def test_load_project_config_rejects_a_missing_required_field(tmp_path: Path) -> None:
@@ -33,13 +33,13 @@ project:
   name: Example
   python_requires: \">=3.11\"
 dataset:
-  primary: CIC-IDS2017
+  primary: deterministic-synthetic-network-flows
 task:
   name: binary_benign_vs_attack
   negative_label: BENIGN
   positive_label: ATTACK
 paths:
-  raw_data_dir: data/raw
+  placeholder: harmless
 reproducibility:
   seeds: [1729, 2718, 3141]
 """.strip(),
@@ -50,25 +50,24 @@ reproducibility:
         load_project_config(config_path)
 
 
-@pytest.mark.parametrize("field", ["raw_data_dir", "artifacts_dir"])
+@pytest.mark.parametrize("field", ["artifacts_dir"])
 def test_load_project_config_rejects_windows_drive_relative_paths(
     tmp_path: Path, field: str
 ) -> None:
     config_path = tmp_path / "project.yaml"
     config_path.write_text(
-        f"""
+        """
 project:
   name: Example
   python_requires: \">=3.11\"
 dataset:
-  primary: CIC-IDS2017
+  primary: deterministic-synthetic-network-flows
 task:
   name: binary_benign_vs_attack
   negative_label: BENIGN
   positive_label: ATTACK
 paths:
-  raw_data_dir: {"C:outside" if field == "raw_data_dir" else "data/raw"}
-  artifacts_dir: {"C:outside" if field == "artifacts_dir" else "artifacts"}
+  artifacts_dir: C:outside
 reproducibility:
   seeds: [1729, 2718, 3141]
 """.strip(),
@@ -88,8 +87,8 @@ def test_seed_list_is_fixed_and_returns_the_same_order_on_each_load() -> None:
     assert len(first.seeds) == len(set(first.seeds))
 
 
-@pytest.mark.parametrize("prohibited_path", ["data/raw/cicids2017.csv", "artifacts/model.joblib"])
-def test_raw_data_and_generated_artifacts_are_gitignored(prohibited_path: str) -> None:
+@pytest.mark.parametrize("prohibited_path", ["artifacts/model.joblib"])
+def test_generated_artifacts_are_gitignored(prohibited_path: str) -> None:
     result = subprocess.run(
         ["git", "check-ignore", "--quiet", prohibited_path],
         cwd=REPOSITORY_ROOT,

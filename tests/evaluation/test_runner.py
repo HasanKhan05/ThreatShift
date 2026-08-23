@@ -12,7 +12,7 @@ import yaml
 
 from data.clean import clean_dataset
 from data.ingest import load_dataset_config
-from data.synthetic import generate_synthetic_cicids2017
+from data.synthetic import generate_synthetic_network_flows
 from evaluation.runner import run_experiment
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -22,12 +22,14 @@ def test_runner_writes_immutable_artifacts_for_every_primary_model_and_protocol(
     tmp_path: Path,
 ) -> None:
     """Skipping a model, seed, or temporal manifest would make comparisons non-comparable."""
-    raw_path = generate_synthetic_cicids2017(tmp_path / "synthetic.csv", valid_rows=180)
+    generated = generate_synthetic_network_flows(tmp_path / "synthetic.csv", valid_rows=180)
+    raw_path = generated.csv_path
     dataset_config = replace(
-        load_dataset_config(REPOSITORY_ROOT / "configs" / "dataset_cicids2017.yaml"),
+        load_dataset_config(REPOSITORY_ROOT / "configs" / "dataset_synthetic.yaml"),
         output_dir=tmp_path / "cleaned",
     )
     clean_result = clean_dataset([raw_path], dataset_config)
+    cleaning_audit = json.loads(clean_result.audit_json_path.read_text(encoding="utf-8"))
     output_root = tmp_path / "artifacts"
     config_path = tmp_path / "experiment.yaml"
     config_path.write_text(
@@ -35,6 +37,11 @@ def test_runner_writes_immutable_artifacts_for_every_primary_model_and_protocol(
             {
                 "experiment": {
                     "identifier": "phase4-synthetic-contract",
+                    "evidence_scope": "synthetic_development",
+                    "synthetic_provenance": cleaning_audit["synthetic_provenance"],
+                    "synthetic_provenance_checksum_sha256": cleaning_audit[
+                        "synthetic_provenance_checksum_sha256"
+                    ],
                     "cleaned_parquet_path": str(clean_result.cleaned_parquet_path),
                     "cleaning_audit_path": str(clean_result.audit_json_path),
                     "artifact_root": str(output_root),
@@ -154,3 +161,51 @@ def test_frozen_validation_operating_point_is_not_reselected_on_test_scores() ->
     assert select_threshold(test, max_fpr=0.0) == pytest.approx(0.7)
     assert test.threshold == pytest.approx(frozen_threshold)
     assert test.per_class["ATTACK"].recall == pytest.approx(0.5)
+
+
+def _boundary_experiment_config(tmp_path: Path) -> dict[str, object]:
+    return {
+        "identifier": "synthetic-boundary",
+        "cleaned_parquet_path": str(tmp_path / "cleaned.parquet"),
+        "cleaning_audit_path": str(tmp_path / "cleaning_audit.json"),
+        "artifact_root": str(tmp_path / "artifacts"),
+        "ledger_path": str(tmp_path / "ledger.csv"),
+        "max_fpr": 0.1,
+        "seeds": [1729],
+        "model_config_paths": [str(tmp_path / "model.yaml")],
+        "splits": [
+            {
+                "kind": "random",
+                "seed": 1729,
+                "validation_fraction": 0.2,
+                "test_fraction": 0.2,
+            },
+            {"kind": "temporal", "validation_day_count": 1, "test_day_count": 1},
+        ],
+    }
+
+
+@pytest.mark.parametrize("scope", [None, "non_synthetic_scope", "other"])
+def test_runner_rejects_missing_or_non_synthetic_evidence_scope(
+    tmp_path: Path, scope: str | None
+) -> None:
+    """A default or alternate scope would let non-synthetic evidence enter experiments."""
+    experiment = _boundary_experiment_config(tmp_path)
+    if scope is not None:
+        experiment["evidence_scope"] = scope
+    config_path = tmp_path / "experiment.yaml"
+    config_path.write_text(yaml.safe_dump({"experiment": experiment}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="evidence_scope.*synthetic_development"):
+        run_experiment(config_path)
+
+
+def test_runner_requires_verified_synthetic_provenance_binding(tmp_path: Path) -> None:
+    """Dropping generator provenance must fail before cleaned data or models are read."""
+    experiment = _boundary_experiment_config(tmp_path)
+    experiment["evidence_scope"] = "synthetic_development"
+    config_path = tmp_path / "experiment.yaml"
+    config_path.write_text(yaml.safe_dump({"experiment": experiment}), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="synthetic_provenance"):
+        run_experiment(config_path)

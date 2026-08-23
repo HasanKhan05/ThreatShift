@@ -1,4 +1,4 @@
-"""Configuration and CSV ingestion for local CIC-IDS2017-style inputs."""
+"""Configuration and CSV ingestion for validated synthetic inputs."""
 
 from __future__ import annotations
 
@@ -23,6 +23,9 @@ class DatasetConfig:
     temporal_source_column: str | None
     split_metadata_column: str | None
     forbidden_feature_columns: tuple[str, ...]
+    dataset_identifier: str | None
+    synthetic_provenance_required: bool
+    provenance_metadata_suffix: str
 
 
 def load_dataset_config(path: Path) -> DatasetConfig:
@@ -67,6 +70,35 @@ def load_dataset_config(path: Path) -> DatasetConfig:
     if any(not isinstance(item, str) or not item.strip() for item in raw_forbidden):
         raise ValueError("forbidden_feature_columns must contain non-empty strings")
 
+    raw_identifier = dataset.get("identifier")
+    if raw_identifier is None:
+        dataset_identifier: str | None = None
+    elif isinstance(raw_identifier, str) and raw_identifier.strip():
+        dataset_identifier = raw_identifier.strip()
+    else:
+        raise ValueError("dataset.identifier must be a non-empty string")
+
+    provenance_config = dataset.get("provenance")
+    synthetic_provenance_required = False
+    provenance_metadata_suffix = ".metadata.json"
+    if provenance_config is not None:
+        if not isinstance(provenance_config, dict):
+            raise ValueError("dataset.provenance must be a mapping")
+        required = provenance_config.get("required")
+        if not isinstance(required, bool):
+            raise ValueError("dataset.provenance.required must be a boolean")
+        synthetic_provenance_required = required
+        provenance_metadata_suffix = _required_string(provenance_config, "metadata_suffix")
+        if (
+            not provenance_metadata_suffix.startswith(".")
+            or not provenance_metadata_suffix.endswith(".json")
+            or "/" in provenance_metadata_suffix
+            or "\\" in provenance_metadata_suffix
+        ):
+            raise ValueError("dataset.provenance.metadata_suffix must be a safe JSON suffix")
+        if synthetic_provenance_required and dataset_identifier is None:
+            raise ValueError("a provenance-required dataset must declare an identifier")
+
     return DatasetConfig(
         label_column=label_column,
         benign_label=benign_label,
@@ -76,23 +108,28 @@ def load_dataset_config(path: Path) -> DatasetConfig:
         temporal_source_column=temporal_source_column,
         split_metadata_column=split_metadata_column,
         forbidden_feature_columns=tuple(item.strip() for item in raw_forbidden),
+        dataset_identifier=dataset_identifier,
+        synthetic_provenance_required=synthetic_provenance_required,
+        provenance_metadata_suffix=provenance_metadata_suffix,
     )
 
 
-def read_cic_csvs(raw_paths: Sequence[Path]) -> tuple[pd.DataFrame, tuple[dict[str, object], ...]]:
+def read_flow_csvs(
+    flow_paths: Sequence[Path],
+) -> tuple[pd.DataFrame, tuple[dict[str, object], ...]]:
     """Read CSV inputs in a fixed path order without modifying their contents."""
-    if not raw_paths:
-        raise ValueError("at least one raw CSV path is required")
+    if not flow_paths:
+        raise ValueError("at least one flow CSV path is required")
 
     frames: list[pd.DataFrame] = []
     input_records: list[dict[str, object]] = []
-    for path in sorted(raw_paths, key=lambda item: item.as_posix().casefold()):
+    for path in sorted(flow_paths, key=lambda item: item.as_posix().casefold()):
         if path.suffix.casefold() != ".csv":
-            raise ValueError(f"raw input must be a CSV file: {path}")
+            raise ValueError(f"flow input must be a CSV file: {path}")
         try:
             frame = pd.read_csv(path, encoding="utf-8-sig", low_memory=False)
         except OSError as error:
-            raise ValueError(f"unable to read raw CSV: {path}") from error
+            raise ValueError(f"unable to read flow CSV: {path}") from error
 
         frame = _strip_column_names(frame, path)
         frames.append(frame)
@@ -109,7 +146,7 @@ def read_cic_csvs(raw_paths: Sequence[Path]) -> tuple[pd.DataFrame, tuple[dict[s
 
 
 def canonical_column_name(name: str) -> str:
-    """Return a comparison key that tolerates CIC-style header whitespace."""
+    """Return a comparison key that tolerates display-header whitespace."""
     return "".join(character for character in name.casefold() if character.isalnum())
 
 

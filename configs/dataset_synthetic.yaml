@@ -1,10 +1,14 @@
-# The raw files remain local under data/raw/ and are never copied by this pipeline.
+# Sole Phase 8 dataset boundary: deterministic local synthetic network flows.
 dataset:
+  identifier: deterministic-synthetic-network-flows
   label_column: Label
   benign_label: BENIGN
   attack_label: ATTACK
-  output_dir: data/processed/cicids2017
+  output_dir: data/processed/synthetic
   nonfinite_policy: drop_rows
+  provenance:
+    required: true
+    metadata_suffix: .metadata.json
   temporal_metadata:
     source_column: Timestamp
     output_column: split_day
@@ -14,6 +18,10 @@ dataset:
     - Source IP
     - Destination IP
     - Timestamp
+    - Traffic Period
+    - Attack Family
+    - Label
+    - Row Order
     - Attack Category
     - Attack Type
     - Source Filename

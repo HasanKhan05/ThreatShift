@@ -15,7 +15,7 @@ import evaluation.analysis_runner as analysis_runner
 from data.clean import clean_dataset
 from data.ingest import load_dataset_config
 from data.splits import SplitProtocol, create_split_manifest
-from data.synthetic import generate_synthetic_cicids2017
+from data.synthetic import generate_synthetic_network_flows
 from evaluation.analysis_runner import (
     _FrozenSource,
     _load_manifest,
@@ -45,18 +45,25 @@ def _manifest_frame() -> pd.DataFrame:
 
 def test_frozen_analysis_writes_redacted_errors_and_real_group_ablation(tmp_path: Path) -> None:
     """Removing the artifact checksum or reselecting a test threshold must reject analysis."""
-    raw_path = generate_synthetic_cicids2017(tmp_path / "synthetic.csv", valid_rows=180)
+    generated = generate_synthetic_network_flows(tmp_path / "synthetic.csv", valid_rows=180)
+    raw_path = generated.csv_path
     dataset_config = replace(
-        load_dataset_config(REPOSITORY_ROOT / "configs" / "dataset_cicids2017.yaml"),
+        load_dataset_config(REPOSITORY_ROOT / "configs" / "dataset_synthetic.yaml"),
         output_dir=tmp_path / "cleaned",
     )
     clean_result = clean_dataset([raw_path], dataset_config)
+    cleaning_audit = json.loads(clean_result.audit_json_path.read_text(encoding="utf-8"))
     config_path = tmp_path / "experiment.yaml"
     config_path.write_text(
         yaml.safe_dump(
             {
                 "experiment": {
                     "identifier": "phase5-synthetic-contract",
+                    "evidence_scope": "synthetic_development",
+                    "synthetic_provenance": cleaning_audit["synthetic_provenance"],
+                    "synthetic_provenance_checksum_sha256": cleaning_audit[
+                        "synthetic_provenance_checksum_sha256"
+                    ],
                     "cleaned_parquet_path": str(clean_result.cleaned_parquet_path),
                     "cleaning_audit_path": str(clean_result.audit_json_path),
                     "artifact_root": str(tmp_path / "artifacts"),
@@ -119,6 +126,12 @@ def test_frozen_analysis_writes_redacted_errors_and_real_group_ablation(tmp_path
     assert 0.0 <= ablations["runs"][0]["metrics"]["macro_f1"] <= 1.0
     metadata = json.loads(result.metadata_path.read_text(encoding="utf-8"))
     assert metadata["artifact_version"] == 2
+    assert metadata["evidence_scope"] == "synthetic_development"
+    assert metadata["synthetic_provenance"] == cleaning_audit["synthetic_provenance"]
+    assert (
+        metadata["synthetic_provenance_checksum_sha256"]
+        == cleaning_audit["synthetic_provenance_checksum_sha256"]
+    )
     assert metadata["source"]["manifest_checksum_sha256"] == experiment.manifest_checksums["random"]
     assert metadata["source"]["threshold"] == pytest.approx(
         json.loads((run.artifact_path / "metadata.json").read_text(encoding="utf-8"))["threshold"]
@@ -148,6 +161,11 @@ def test_frozen_analysis_writes_redacted_errors_and_real_group_ablation(tmp_path
     result.ablation_path.write_bytes(original_ablation)
     analysis_runner.validate_analysis_artifact(result.artifact_path)
 
+    metadata["evidence_scope"] = "other"
+    result.metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+    with pytest.raises(ValueError, match="synthetic_development"):
+        analysis_runner.validate_analysis_artifact(result.artifact_path)
+
 
 def test_frozen_analysis_rejects_scored_records_changed_after_evaluation(tmp_path: Path) -> None:
     """A changed saved score must not be analysed under stale evaluation provenance."""
@@ -161,6 +179,12 @@ def test_frozen_analysis_rejects_scored_records_changed_after_evaluation(tmp_pat
     (run_path / "metadata.json").write_text(
         json.dumps(
             {
+                "evidence_scope": "synthetic_development",
+                "synthetic_provenance": {
+                    "dataset_identifier": "deterministic-synthetic-network-flows",
+                    "is_synthetic": True,
+                },
+                "synthetic_provenance_checksum_sha256": "a" * 64,
                 "analysis_source": {
                     "scored_records_path": str(run_path / "analysis_scored_records.csv"),
                     "scored_records_checksum_sha256": "not-the-real-checksum",
@@ -170,7 +194,7 @@ def test_frozen_analysis_rejects_scored_records_changed_after_evaluation(tmp_pat
                     "threshold": 0.5,
                     "calibration_fit_partition": "validation",
                     "threshold_selection_partition": "validation",
-                }
+                },
             }
         ),
         encoding="utf-8",

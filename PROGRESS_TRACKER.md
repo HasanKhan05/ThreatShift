@@ -12,7 +12,7 @@ Update this file only through the routing/orchestration lead after independent Q
 | 5. Research analysis | Complete | Yes | Final Phase 5/6 independent QA: PASS WITH NONBLOCKING NOTES | 86 tests; Ruff; mypy; lock; artifact integrity, SHAP provenance, redaction, and all dashboard screens verified | 3f1d757 integration commit | Yes — main 5c94057 | Synthetic-development-only artifacts; official CIC-IDS2017 inputs remain required for dataset-specific claims. |
 | 6. Demo UI | Complete | Yes | Final Phase 5/6 independent QA: PASS WITH NONBLOCKING NOTES | 86 tests; Ruff; mypy; lock; multi-seed artifact validation and six-screen Streamlit smoke verified | 3f1d757 integration commit | Yes — main 5c94057 | Artifact-backed, synthetic-development-only dashboard; release evidence recorded before push. |
 | 7. Release | Complete | Yes | Phase 7 independent re-QA: PASS WITH NONBLOCKING NOTES | 88 tests; Ruff; mypy; lock; clean synthetic reproduction, artifact-backed dashboard validation, and scoped re-QA | 4f29ef4 | Yes — main 4f29ef4 | One-command local reproduction and CI released. Official CIC-IDS2017 result claims remain blocked pending approved local inputs, source/terms, checksum, schema, and capture-day audit. |
-
+| 8. Post-release synthetic-only redesign | QA passed | Yes | Phase 8 final release QA and blocker re-review: PASS | 128 tests; Ruff format/check; mypy; lock; two byte-identical full-size reproductions; dashboard health; five-page PDF review | Pending release commit | No | Synthetic-only boundary, fail-closed provenance, two-page UI, and current run-of-show verified; user authorized commit and push. |
 ## Gate Record Template
 
 Copy this under the table for every completed phase.
@@ -32,4 +32,4 @@ Copy this under the table for every completed phase.
 
 ## Current Blockers
 
-Before reporting or using official CIC-IDS2017 results, validate the approved local raw inputs: confirm official access terms, keep the raw files local and ignored, record source inventory and checksums, and verify the observed schema and capture-day definitions.
+Phase 8 is in progress. Do not request, download, accept, or use external/raw cybersecurity data; the only supported research input is deterministic synthetic network-flow data with validated provenance. Historical rows above remain retained release evidence.

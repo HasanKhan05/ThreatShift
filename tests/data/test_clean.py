@@ -12,14 +12,14 @@ from data.clean import clean_dataset
 from data.ingest import load_dataset_config
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
-DATASET_CONFIG_PATH = REPOSITORY_ROOT / "configs" / "dataset_cicids2017.yaml"
+SYNTHETIC_DATASET_CONFIG_PATH = REPOSITORY_ROOT / "configs" / "dataset_synthetic.yaml"
 
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _write_cic_style_fixture(path: Path) -> str:
+def _write_flow_fixture(path: Path) -> str:
     frame = pd.DataFrame(
         {
             " Flow ID ": ["flow-a", "flow-b", "flow-c", "flow-d", "flow-e", "flow-f"],
@@ -37,7 +37,7 @@ def _write_cic_style_fixture(path: Path) -> str:
 
 
 def test_load_dataset_config_exposes_cleaning_contract() -> None:
-    config = load_dataset_config(DATASET_CONFIG_PATH)
+    config = load_dataset_config(SYNTHETIC_DATASET_CONFIG_PATH)
 
     assert config.label_column == "Label"
     assert config.benign_label == "BENIGN"
@@ -48,8 +48,12 @@ def test_load_dataset_config_exposes_cleaning_contract() -> None:
 
 def test_clean_dataset_normalizes_labels_and_writes_reason_coded_audit(tmp_path: Path) -> None:
     raw_path = tmp_path / "Friday-WorkingHours.csv"
-    original_contents = _write_cic_style_fixture(raw_path)
-    config = replace(load_dataset_config(DATASET_CONFIG_PATH), output_dir=tmp_path / "output")
+    original_contents = _write_flow_fixture(raw_path)
+    config = replace(
+        load_dataset_config(SYNTHETIC_DATASET_CONFIG_PATH),
+        synthetic_provenance_required=False,
+        output_dir=tmp_path / "output",
+    )
 
     result = clean_dataset([raw_path], config)
 
@@ -113,11 +117,15 @@ def test_clean_dataset_normalizes_labels_and_writes_reason_coded_audit(tmp_path:
 
 def test_clean_dataset_removes_rows_with_invalid_split_day_metadata(tmp_path: Path) -> None:
     raw_path = tmp_path / "invalid-timestamp.csv"
-    _write_cic_style_fixture(raw_path)
+    _write_flow_fixture(raw_path)
     raw = pd.read_csv(raw_path)
     raw.loc[5, " Timestamp "] = "not-a-timestamp"
     raw.to_csv(raw_path, index=False)
-    config = replace(load_dataset_config(DATASET_CONFIG_PATH), output_dir=tmp_path / "output")
+    config = replace(
+        load_dataset_config(SYNTHETIC_DATASET_CONFIG_PATH),
+        synthetic_provenance_required=False,
+        output_dir=tmp_path / "output",
+    )
 
     result = clean_dataset([raw_path], config)
     cleaned = pd.read_parquet(result.cleaned_parquet_path)
@@ -139,10 +147,11 @@ def test_clean_dataset_keeps_phase_one_cleaning_behavior_without_temporal_metada
     tmp_path: Path,
 ) -> None:
     raw_path = tmp_path / "no-temporal-metadata.csv"
-    _write_cic_style_fixture(raw_path)
+    _write_flow_fixture(raw_path)
     config = replace(
-        load_dataset_config(DATASET_CONFIG_PATH),
+        load_dataset_config(SYNTHETIC_DATASET_CONFIG_PATH),
         output_dir=tmp_path / "output",
+        synthetic_provenance_required=False,
         temporal_source_column=None,
         split_metadata_column=None,
     )
@@ -163,11 +172,17 @@ def test_clean_dataset_keeps_phase_one_cleaning_behavior_without_temporal_metada
 
 def test_clean_dataset_is_repeatable_for_identical_inputs(tmp_path: Path) -> None:
     raw_path = tmp_path / "Friday-WorkingHours.csv"
-    _write_cic_style_fixture(raw_path)
-    base_config = load_dataset_config(DATASET_CONFIG_PATH)
+    _write_flow_fixture(raw_path)
+    base_config = load_dataset_config(SYNTHETIC_DATASET_CONFIG_PATH)
 
-    first = clean_dataset([raw_path], replace(base_config, output_dir=tmp_path / "first"))
-    second = clean_dataset([raw_path], replace(base_config, output_dir=tmp_path / "second"))
+    first = clean_dataset(
+        [raw_path],
+        replace(base_config, synthetic_provenance_required=False, output_dir=tmp_path / "first"),
+    )
+    second = clean_dataset(
+        [raw_path],
+        replace(base_config, synthetic_provenance_required=False, output_dir=tmp_path / "second"),
+    )
 
     assert first.checksum == second.checksum == _sha256(first.cleaned_parquet_path)
     assert _sha256(first.audit_json_path) == _sha256(second.audit_json_path)
@@ -178,7 +193,11 @@ def test_clean_dataset_is_repeatable_for_identical_inputs(tmp_path: Path) -> Non
 def test_clean_dataset_rejects_a_missing_label_column(tmp_path: Path) -> None:
     raw_path = tmp_path / "missing-label.csv"
     pd.DataFrame({"Flow Duration": [1], "Total Fwd Packets": [2]}).to_csv(raw_path, index=False)
-    config = replace(load_dataset_config(DATASET_CONFIG_PATH), output_dir=tmp_path / "output")
+    config = replace(
+        load_dataset_config(SYNTHETIC_DATASET_CONFIG_PATH),
+        synthetic_provenance_required=False,
+        output_dir=tmp_path / "output",
+    )
 
     with pytest.raises(ValueError, match="label column.*Label"):
         clean_dataset([raw_path], config)
@@ -192,7 +211,7 @@ dataset:
   label_column: Label
   benign_label: BENIGN
   attack_label: ATTACK
-  output_dir: data/processed/cicids2017
+  output_dir: data/processed/synthetic
   nonfinite_policy: impute
   forbidden_feature_columns: [Flow ID]
 """.strip(),
@@ -211,7 +230,7 @@ dataset:
   label_column: Label
   benign_label: BENIGN
   attack_label: ATTACK
-  output_dir: data/processed/cicids2017
+  output_dir: data/processed/synthetic
   nonfinite_policy: drop_rows
   forbidden_feature_columns: [Flow ID]
 """.strip(),
@@ -222,3 +241,21 @@ dataset:
 
     assert config.temporal_source_column is None
     assert config.split_metadata_column is None
+
+
+def test_synthetic_dataset_config_requires_verified_provenance_and_forbids_metadata_features() -> (
+    None
+):
+    config = load_dataset_config(SYNTHETIC_DATASET_CONFIG_PATH)
+
+    assert config.dataset_identifier == "deterministic-synthetic-network-flows"
+    assert config.synthetic_provenance_required is True
+    assert config.provenance_metadata_suffix == ".metadata.json"
+    assert {
+        "Flow ID",
+        "Timestamp",
+        "Traffic Period",
+        "Attack Family",
+        "Label",
+        "Row Order",
+    }.issubset(config.forbidden_feature_columns)

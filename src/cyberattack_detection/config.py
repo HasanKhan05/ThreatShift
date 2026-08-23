@@ -23,7 +23,6 @@ class ProjectConfig:
     task_name: str
     negative_label: str
     positive_label: str
-    raw_data_dir: Path
     artifacts_dir: Path
     seeds: tuple[int, ...]
 
@@ -49,7 +48,6 @@ def load_project_config(path: Path) -> ProjectConfig:
     if negative_label == positive_label:
         raise ConfigValidationError("task labels must be distinct")
 
-    raw_data_dir = _require_relative_path(paths, "raw_data_dir")
     artifacts_dir = _require_relative_path(paths, "artifacts_dir")
 
     return ProjectConfig(
@@ -59,7 +57,6 @@ def load_project_config(path: Path) -> ProjectConfig:
         task_name=_require_string(task, "name", "task"),
         negative_label=negative_label,
         positive_label=positive_label,
-        raw_data_dir=raw_data_dir,
         artifacts_dir=artifacts_dir,
         seeds=_require_seeds(reproducibility),
     )

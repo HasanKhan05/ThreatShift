@@ -7,6 +7,10 @@
 **Architecture:** A versioned data pipeline converts public flow records into documented, leakage-audited artifacts and fixed split manifests. Training and evaluation consume those artifacts through configuration files, write immutable experiment outputs, and feed a local Streamlit results application. The application reads saved artifacts only; it never retrains models or mutates the dataset.
 
 **Tech Stack:** Python 3.11, pandas, scikit-learn, imbalanced-learn, PyTorch, SHAP, Matplotlib/Seaborn, Streamlit, pytest, ruff, mypy (where practical), uv or pip-tools.
+## Post-release Phase 8 status
+
+Phase 8, the synthetic-only redesign, is in progress. Its binding plan is `docs/superpowers/plans/2026-08-22-synthetic-only-redesign.md`; it supersedes every earlier active requirement here to acquire, retain, or use official/raw CIC-IDS2017 data. Earlier phase content is retained as historical release evidence.
+
 
 **Spec:** This document is the approved project specification and execution plan. Read it together with `AGENTS.md`, `STAGED_DELIVERY_PLAN.md`, and `PROGRESS_TRACKER.md`.
 
@@ -182,6 +186,18 @@ The Streamlit app must be polished, keyboard-readable, and artifact-backed. It h
 - At least one temporal-shift, calibration, and feature-group ablation experiment is complete.
 - README, report, demo, experiment ledger, and interview notes state limitations honestly.
 - Every completed phase is independently QA-passed, committed, pushed, and recorded in the tracker.
+
+## Phase 8 — Post-release synthetic-only redesign
+
+**Status:** In progress. This phase is governed by `docs/superpowers/specs/2026-08-22-synthetic-only-redesign-design.md` and its implementation plan.
+
+**Objective:** Make `deterministic-synthetic-network-flows` the sole supported input, retain deterministic seeds, and preserve safe relative generated-output/artifact handling.
+
+- [ ] Replace the official/raw dataset boundary with validated deterministic synthetic provenance.
+- [ ] Require synthetic evidence scope for saved artifacts and dashboard loading.
+- [ ] Update the dashboard and active documentation for the synthetic-only research demonstration.
+- [ ] Obtain independent QA; leave this post-release phase in progress until routing-lead authorization.
+
 
 ## Plan Self-Review
 
