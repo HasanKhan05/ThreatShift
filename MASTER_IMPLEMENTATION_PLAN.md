@@ -9,7 +9,7 @@
 **Tech Stack:** Python 3.11, pandas, scikit-learn, imbalanced-learn, PyTorch, SHAP, Matplotlib/Seaborn, Streamlit, pytest, ruff, mypy (where practical), uv or pip-tools.
 ## Post-release Phase 8 status
 
-Phase 8, the synthetic-only redesign, is in progress. Its binding plan is `docs/superpowers/plans/2026-08-22-synthetic-only-redesign.md`; it supersedes every earlier active requirement here to acquire, retain, or use official/raw CIC-IDS2017 data. Earlier phase content is retained as historical release evidence.
+Phase 8, the synthetic-only redesign, is complete. Its binding plan is `docs/superpowers/plans/2026-08-22-synthetic-only-redesign.md`; it supersedes every earlier active requirement here to acquire, retain, or use official/raw CIC-IDS2017 data. Earlier phase content is retained as historical release evidence.
 
 
 **Spec:** This document is the approved project specification and execution plan. Read it together with `AGENTS.md`, `STAGED_DELIVERY_PLAN.md`, and `PROGRESS_TRACKER.md`.
@@ -189,14 +189,14 @@ The Streamlit app must be polished, keyboard-readable, and artifact-backed. It h
 
 ## Phase 8 — Post-release synthetic-only redesign
 
-**Status:** In progress. This phase is governed by `docs/superpowers/specs/2026-08-22-synthetic-only-redesign-design.md` and its implementation plan.
+**Status:** Complete. This phase is governed by `docs/superpowers/specs/2026-08-22-synthetic-only-redesign-design.md` and its implementation plan.
 
 **Objective:** Make `deterministic-synthetic-network-flows` the sole supported input, retain deterministic seeds, and preserve safe relative generated-output/artifact handling.
 
-- [ ] Replace the official/raw dataset boundary with validated deterministic synthetic provenance.
-- [ ] Require synthetic evidence scope for saved artifacts and dashboard loading.
-- [ ] Update the dashboard and active documentation for the synthetic-only research demonstration.
-- [ ] Obtain independent QA; leave this post-release phase in progress until routing-lead authorization.
+- [x] Replace the official/raw dataset boundary with validated deterministic synthetic provenance.
+- [x] Require synthetic evidence scope for saved artifacts and dashboard loading.
+- [x] Update the dashboard and active documentation for the synthetic-only research demonstration.
+- [x] Obtain independent QA and routing-lead release authorization.
 
 
 ## Plan Self-Review
