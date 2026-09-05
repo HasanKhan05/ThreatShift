@@ -25,4 +25,5 @@ jobs:
       - run: uv run --frozen mypy src
       # This creates deterministic synthetic input locally; it does not acquire a dataset.
       - run: uv run --frozen pytest tests/release/test_reproducibility_smoke.py -q
+      - run: mkdir -p artifacts
       - run: uv run --frozen pytest --basetemp artifacts/ci-pytest -p no:cacheprovider -q
