@@ -23,9 +23,15 @@ Saved metrics, error slices, ablations, and explanation status describe only the
 NIST’s [AI RMF](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf) emphasizes documented testing, evaluation, verification, validation, uncertainty, and limits to generalization. This project follows that posture by preserving artifacts and reporting unavailable evidence plainly. No numerical conclusion is asserted here without a generated, validated artifact.
 
 Synthetic data does not automatically establish utility, realism, or privacy. [NIST SP 800-226](https://doi.org/10.6028/NIST.SP.800-226) discusses synthetic-data privacy hazards and utility uncertainty. This generator uses no private source traffic, but it offers no anonymity, disclosure-risk, or privacy guarantee.
-## Canonical Results (Primary Experiment)
+## Canonical Results and Reproduction
 
-Based on the verified reproduction artifacts, the following mean performance was recorded on the **random evaluation split**:
+The canonical measured artifacts used by the research website were generated with the primary reproducible pipeline command:
+
+```bash
+uv run --frozen python -m cyberattack_detection.reproduce --output artifacts/canonical-run-1
+```
+
+Based on these verified reproduction artifacts, the following mean performance was recorded on the **random evaluation split**:
 
 - **Random Forest**: 45.2% attack detection, 8.5% false alarms
 - **Compact Mlp**: 49.5% attack detection, 9.5% false alarms

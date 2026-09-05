@@ -238,7 +238,7 @@
     {
       "id": "01",
       "question": "Which model wins?",
-      "answer": "Selected by the predeclared rule (highest recall at FPR \u2264 10%) on verified local reproduction. In this illustrative demo layout, models illustrate the comparison protocol.",
+      "answer": "Selected by the predeclared rule (highest recall at FPR \u2264 10%) on verified local reproduction. In the measured primary experiment, Logistic Regression provided the best qualifying trade-off under the predefined \u226410% false-alarm constraint.",
       "is_dark": true
     },
     {
