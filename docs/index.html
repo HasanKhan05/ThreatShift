@@ -75,30 +75,30 @@
               <div class="mini-model-card">
                 <div class="mini-model-name">
                   <span>Logistic regression</span>
-                  <span>Measured Result</span>
+                  <span>50.2%</span>
                 </div>
                 <div class="mini-bar-bg">
-                  <div class="mini-bar-fill fill-cyan" style="width: 70%;"></div>
+                  <div class="mini-bar-fill fill-cyan" style="width: 50.2%;"></div>
                 </div>
               </div>
 
               <div class="mini-model-card">
                 <div class="mini-model-name">
                   <span>Random forest</span>
-                  <span>Measured Result</span>
+                  <span>45.2%</span>
                 </div>
                 <div class="mini-bar-bg">
-                  <div class="mini-bar-fill fill-teal" style="width: 85%;"></div>
+                  <div class="mini-bar-fill fill-teal" style="width: 45.2%;"></div>
                 </div>
               </div>
 
               <div class="mini-model-card">
                 <div class="mini-model-name">
                   <span>Compact MLP</span>
-                  <span>Measured Result</span>
+                  <span>49.5%</span>
                 </div>
                 <div class="mini-bar-bg">
-                  <div class="mini-bar-fill fill-purple" style="width: 75%;"></div>
+                  <div class="mini-bar-fill fill-purple" style="width: 49.5%;"></div>
                 </div>
               </div>
             </div>
@@ -149,17 +149,17 @@
       <!-- Left: Attack Detection Chart -->
       <div class="white-card">
         <h3 class="card-title">Attack detection</h3>
-        <p class="card-subtitle">Higher is better — Measured Results</p>
+        <p class="card-subtitle">Higher is better — primary random split</p>
 
         <div class="chart-bars-list">
           <!-- Random Forest -->
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Random Forest</span>
-              <span class="chart-val-end">Measured Result</span>
+              <span class="chart-val-end">45.2%</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-teal" data-width="85%" style="width: 0%;"></div>
+              <div class="chart-fill fill-teal" data-width="45.2%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -167,10 +167,10 @@
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Compact MLP</span>
-              <span class="chart-val-end">Measured Result</span>
+              <span class="chart-val-end">49.5%</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-purple" data-width="75%" style="width: 0%;"></div>
+              <div class="chart-fill fill-purple" data-width="49.5%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -178,10 +178,10 @@
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Logistic Regression</span>
-              <span class="chart-val-end">Measured Result</span>
+              <span class="chart-val-end">50.2%</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-cyan" data-width="70%" style="width: 0%;"></div>
+              <div class="chart-fill fill-cyan" data-width="50.2%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -205,19 +205,19 @@
 
       <!-- Right: Research Answer Card -->
       <div class="dark-card">
-        <span class="badge-pill cyan">SELECTION PROTOCOL</span>
+        <span class="badge-pill cyan">RECOMMENDED MODEL</span>
         <h3 style="font-size: 1.35rem; font-weight: 750; margin-top: 14px; margin-bottom: 2px;">
           Which model gives the best balance?
         </h3>
-        <div class="research-winner-name">Predeclared Rule</div>
+        <div class="research-winner-name">Logistic Regression</div>
         <p class="research-winner-desc">
-          The research framework selects the model maximizing attack detection while strictly staying at or below the 10% false-alarm limit.
+          In the measured primary experiment, Logistic Regression provided the highest attack detection while satisfying the false-alarm constraint.
         </p>
         <div class="winner-metrics-pill">
-          Decision rule: Maximize detection • FPR ≤ 10%
+          50.2% detection • 9.5% false alarms
         </div>
         <div class="winner-rule-note">
-          The research framework selects the model that maximizes attack detection while strictly respecting the 10% false-alarm limit. Results are empirical.
+          Selection rule: Best attack detection among models satisfying FPR ≤ 10%.
         </div>
       </div>
     </div>
@@ -227,17 +227,17 @@
       <!-- Left: False Alarms Chart -->
       <div class="white-card">
         <h3 class="card-title">False alarms</h3>
-        <p class="card-subtitle">Lower is better — Measured Results</p>
+        <p class="card-subtitle">Lower is better — primary random split (≤10% cap)</p>
 
         <div class="chart-bars-list">
           <!-- Random Forest -->
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Random Forest</span>
-              <span class="chart-val-end">Measured Result</span>
+              <span class="chart-val-end">8.5%</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-teal" data-width="25%" style="width: 0%;"></div>
+              <div class="chart-fill fill-teal" data-width="85%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -245,10 +245,10 @@
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Compact MLP</span>
-              <span class="chart-val-end">Measured Result</span>
+              <span class="chart-val-end">9.5%</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-purple" data-width="35%" style="width: 0%;"></div>
+              <div class="chart-fill fill-purple" data-width="95%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -256,10 +256,10 @@
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Logistic Regression</span>
-              <span class="chart-val-end">Measured Result</span>
+              <span class="chart-val-end">9.5%</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-cyan" data-width="45%" style="width: 0%;"></div>
+              <div class="chart-fill fill-cyan" data-width="95%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -323,8 +323,11 @@
         </div>
 
         <div class="temporal-subbox">
-          <span style="font-size: 0.76rem; font-weight: 800; color: var(--cyan); text-transform: uppercase;">Research question</span>
-          <h4>Does the model still work when later traffic patterns change?</h4>
+          <span style="font-size: 0.76rem; font-weight: 800; color: var(--cyan); text-transform: uppercase;">Temporal Holdout Metrics (Period 5)</span>
+          <h4 style="margin-bottom: 6px;">Does the detector still work when later traffic changes?</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted-light); margin: 0; line-height: 1.4;">
+            LR: 53.4% det / 15.2% FPR • MLP: 52.8% det / 15.3% FPR • RF: 49.3% det / 15.9% FPR • Majority: 0.0%
+          </p>
         </div>
       </div>
     </div>

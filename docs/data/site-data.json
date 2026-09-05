@@ -65,10 +65,15 @@
       }
     ],
     "recommendation": {
-      "model": "Predeclared Rule",
+      "model": "Logistic Regression",
       "pill": "Predeclared rule: FPR \u2264 10%",
-      "explanation": "The research framework selects the model that maximizes attack detection while strictly respecting the 10% false-alarm limit. Results are empirical.",
-      "rule": "Research rule: maximize attack detection among models staying at or below 10% FPR."
+      "metrics": "50.2% detection \u2022 9.5% false alarms",
+      "attack_detection": 0.5017751479289941,
+      "attack_detection_display": "50.2%",
+      "false_alarms": 0.095176848874598,
+      "false_alarms_display": "9.5%",
+      "explanation": "In the measured primary experiment, Logistic Regression provided the highest attack detection while satisfying the false-alarm constraint.",
+      "rule": "Selection rule: Best attack detection among models satisfying FPR \u2264 10%."
     }
   },
   "temporal": {
@@ -108,7 +113,41 @@
       }
     ],
     "question": "Does the detector still work when later traffic changes?",
-    "question_detail": "Earlier periods teach the model. Period 4 is used to validate. Period 5 stays untouched until final holdout evaluation."
+    "question_detail": "Earlier periods teach the model. Period 4 is used to validate. Period 5 stays untouched until final holdout evaluation.",
+    "models": [
+      {
+        "id": "logistic_regression",
+        "name": "Logistic Regression",
+        "attack_detection": 0.534,
+        "attack_detection_display": "53.4%",
+        "false_alarms": 0.152,
+        "false_alarms_display": "15.2%"
+      },
+      {
+        "id": "compact_mlp",
+        "name": "Compact MLP",
+        "attack_detection": 0.528,
+        "attack_detection_display": "52.8%",
+        "false_alarms": 0.153,
+        "false_alarms_display": "15.3%"
+      },
+      {
+        "id": "random_forest",
+        "name": "Random Forest",
+        "attack_detection": 0.493,
+        "attack_detection_display": "49.3%",
+        "false_alarms": 0.159,
+        "false_alarms_display": "15.9%"
+      },
+      {
+        "id": "majority_baseline",
+        "name": "Majority baseline",
+        "attack_detection": 0.0,
+        "attack_detection_display": "0.0%",
+        "false_alarms": 0.0,
+        "false_alarms_display": "0.0%"
+      }
+    ]
   },
   "demonstration": {
     "title": "Watch one saved network flow pass through four models.",
