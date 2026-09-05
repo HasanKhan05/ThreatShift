@@ -37,6 +37,21 @@ _PROHIBITED_MODEL_FEATURES = frozenset(
         "trafficperiod",
     }
 )
+_CANONICAL_FLOAT_DIGITS = 10
+_CONTINUOUS_FLOAT_COLUMNS: tuple[str, ...] = (
+    "Flow Duration",
+    "Total Length of Fwd Packets",
+    "Total Length of Bwd Packets",
+    "Fwd Packet Length Mean",
+    "Bwd Packet Length Mean",
+    "Flow Bytes/s",
+    "Flow Packets/s",
+    "Flow IAT Mean",
+    "Down/Up Ratio",
+    "Average Packet Size",
+    "Idle Mean",
+    "Active Mean",
+)
 
 
 _PROVENANCE_FIELDS = frozenset(
@@ -392,11 +407,29 @@ def _build_frame(scenario: dict[str, object], seed: int, valid_rows: int) -> pd.
         )
         row_offset += row_count
     valid_frame = pd.concat(frames, axis=0, ignore_index=True)
+    valid_frame = _canonicalize_continuous_features(valid_frame)
     return pd.concat(
         [valid_frame, _defective_rows(valid_frame, scenario)],
         axis=0,
         ignore_index=True,
     )
+
+
+def _canonicalize_continuous_features(
+    frame: pd.DataFrame, digits: int = _CANONICAL_FLOAT_DIGITS
+) -> pd.DataFrame:
+    """Normalize continuous float features to stable precision before serialization."""
+    result = frame.copy()
+    for col in _CONTINUOUS_FLOAT_COLUMNS:
+        if col in result.columns:
+            arr = result[col].to_numpy(dtype=float, copy=True)
+            mask = (arr != 0.0) & np.isfinite(arr)
+            if np.any(mask):
+                v = arr[mask]
+                scales = 10.0 ** (digits - 1 - np.floor(np.log10(np.abs(v))))
+                arr[mask] = np.round(v * scales) / scales
+                result[col] = arr
+    return result
 
 
 def _defective_rows(valid_frame: pd.DataFrame, scenario: dict[str, object]) -> pd.DataFrame:
