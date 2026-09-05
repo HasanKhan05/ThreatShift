@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Demonstration — Cyberattack Detection ML</title>
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body>
+
+  <!-- LIGHT NAVBAR -->
+  <header class="site-nav light" aria-label="Main Navigation">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+      <a href="./index.html" class="brand">
+        <span class="brand-dot"></span>
+        CYBER ML RESEARCH
+      </a>
+      <ul class="nav-links">
+        <li><a href="./index.html">Overview</a></li>
+        <li><a href="./demo.html" class="active">Demo</a></li>
+        <li><a href="./results.html">Results</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- DEMO HEADER -->
+    <div class="demo-header">
+      <span class="badge-pill cyan">PROJECT DEMONSTRATION</span>
+      <h1 class="demo-title">
+        Watch one saved network flow pass<br>
+        through four models.
+      </h1>
+      <p class="demo-sub">
+        Switch between an attack-like replay and a benign replay. The page explains what the models saw and how their saved scores changed.
+      </p>
+
+      <!-- SEGMENTED TOGGLE CONTROL -->
+      <div class="segmented-toggle" role="tablist" aria-label="Demo flow selection">
+        <button class="toggle-btn active" data-state="attack" role="tab" aria-selected="true">Attack-like example</button>
+        <button class="toggle-btn" data-state="benign" role="tab" aria-selected="false">Benign example</button>
+      </div>
+    </div>
+
+    <!-- TWO-COLUMN REPLAY STAGE -->
+    <div class="demo-layout">
+      <!-- LEFT: REPLAY STAGE (Dark) -->
+      <div class="replay-stage">
+        <div class="replay-top">
+          <span id="demo-tag" class="badge-pill orange">ATTACK-LIKE SAVED FLOW</span>
+          <h2 class="replay-title">Traffic signature</h2>
+          <p id="demo-desc" class="replay-desc">
+            The replay highlights a few intuitive flow characteristics. These are descriptive cues for the visual, not live packet capture.
+          </p>
+        </div>
+
+        <!-- Flow Rail Packet Visualization -->
+        <div class="flow-rail-container">
+          <div id="demo-packet-rail" class="flow-rail">
+            <div class="flow-packet dot-orange" style="left: 12%;"></div>
+            <div class="flow-packet dot-orange" style="left: 22%;"></div>
+            <div class="flow-packet triangle" style="left: 32%;"></div>
+            <div class="flow-packet dot-orange" style="left: 44%;"></div>
+            <div class="flow-packet dot-lime" style="left: 68%;"></div>
+            <div class="flow-packet triangle" style="left: 82%;"></div>
+            <div class="flow-packet dot-orange" style="left: 92%;"></div>
+          </div>
+        </div>
+
+        <!-- 4 Feature Chips -->
+        <div id="demo-chips" class="feature-chips-grid">
+          <div class="feature-chip">High packet rate</div>
+          <div class="feature-chip">High SYN activity</div>
+          <div class="feature-chip">Shorter duration</div>
+          <div class="feature-chip">Payload anomaly</div>
+        </div>
+
+        <!-- Pipeline Steps -->
+        <div class="pipeline-steps">
+          <div>
+            <span class="p-step-num">01</span>
+            <span class="p-step-title">Prepare</span>
+            <span class="p-step-sub">Clean + scale</span>
+          </div>
+          <div>
+            <span class="p-step-num">02</span>
+            <span class="p-step-title">Score</span>
+            <span class="p-step-sub">Run 4 models</span>
+          </div>
+          <div>
+            <span class="p-step-num">03</span>
+            <span class="p-step-title">Compare</span>
+            <span class="p-step-sub">Attack vs benign</span>
+          </div>
+          <div>
+            <span class="p-step-num">04</span>
+            <span class="p-step-title">Review</span>
+            <span class="p-step-sub">Explain result</span>
+          </div>
+        </div>
+
+        <!-- Replay Disclaimer Box -->
+        <div class="replay-disclaimer">
+          <span class="disc-label">WHAT THIS DEMO MEANS</span>
+          <p id="demo-disclaimer-text">
+            This is a deterministic saved replay. No live network is monitored, no model is retrained, and no new traffic is scored here.
+          </p>
+        </div>
+      </div>
+
+      <!-- RIGHT: MODEL DECISIONS PANEL (White) -->
+      <div class="decisions-panel">
+        <div class="decisions-header">
+          <h3>Model decisions</h3>
+          <p>Each bar is a saved replay score. Exact values come from the implemented demo artifacts.</p>
+        </div>
+
+        <!-- 4 Model Decision Cards Container -->
+        <div id="demo-models-list" class="model-decision-cards">
+          <!-- Majority Baseline -->
+          <div class="decision-card">
+            <div class="decision-card-top">
+              <span class="decision-model-name">Majority baseline</span>
+              <span class="status-badge badge-baseline">BASELINE</span>
+            </div>
+            <div class="decision-score-track">
+              <div class="decision-score-fill fill-gray" style="width: 0%;"></div>
+            </div>
+            <div class="decision-caption">
+              <span>saved replay score</span>
+              <span>0%</span>
+            </div>
+          </div>
+
+          <!-- Logistic Regression -->
+          <div class="decision-card">
+            <div class="decision-card-top">
+              <span class="decision-model-name">Logistic regression</span>
+              <span class="status-badge badge-attack">ATTACK</span>
+            </div>
+            <div class="decision-score-track">
+              <div class="decision-score-fill fill-cyan" style="width: 91%;"></div>
+            </div>
+            <div class="decision-caption">
+              <span>saved replay score</span>
+              <span>91%</span>
+            </div>
+          </div>
+
+          <!-- Random Forest (Highlighted) -->
+          <div class="decision-card highlighted">
+            <div class="decision-card-top">
+              <span class="decision-model-name">Random Forest</span>
+              <span class="status-badge badge-attack">ATTACK</span>
+            </div>
+            <div class="decision-score-track">
+              <div class="decision-score-fill fill-teal" style="width: 88%;"></div>
+            </div>
+            <div class="decision-caption">
+              <span>saved replay score</span>
+              <span>88%</span>
+            </div>
+          </div>
+
+          <!-- Compact MLP -->
+          <div class="decision-card">
+            <div class="decision-card-top">
+              <span class="decision-model-name">Compact MLP</span>
+              <span class="status-badge badge-attack">ATTACK</span>
+            </div>
+            <div class="decision-score-track">
+              <div class="decision-score-fill fill-purple" style="width: 86%;"></div>
+            </div>
+            <div class="decision-caption">
+              <span>saved replay score</span>
+              <span>86%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        CYBER ML RESEARCH
+      </div>
+      <div>
+        Reproducible Machine-Learning Benchmark • Artifact-backed Presentation
+      </div>
+    </div>
+  </footer>
+
+  <script src="./assets/js/site.js"></script>
+  <script src="./assets/js/demo.js"></script>
+</body>
+</html>

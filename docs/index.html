@@ -1,0 +1,445 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyberattack Detection ML — Research Benchmark</title>
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body>
+
+  <!-- HERO WRAPPER -->
+  <header class="hero-wrapper">
+    <div class="container">
+      <nav class="site-nav dark" aria-label="Main Navigation">
+        <a href="./index.html" class="brand">
+          <span class="brand-dot"></span>
+          CYBER ML RESEARCH
+        </a>
+        <ul class="nav-links">
+          <li><a href="./index.html" class="active">Overview</a></li>
+          <li><a href="./demo.html">Demo</a></li>
+          <li><a href="#benchmark">Benchmark</a></li>
+          <li><a href="#qa">Research Q&A</a></li>
+        </ul>
+      </nav>
+
+      <div class="hero-grid">
+        <div class="hero-left">
+          <span class="badge-pill cyan">RESEARCH QUESTION</span>
+          <h1 class="hero-title">
+            Can machine learning<br>
+            catch more attacks<br>
+            without drowning us in<br>
+            false alarms?
+          </h1>
+          <p class="hero-subtitle">
+            We compare four machine-learning models on the same reproducible network-flow study and judge them on two things anyone can understand: attacks found and false alarms created.
+          </p>
+          <div class="hero-actions">
+            <a href="./demo.html" class="btn btn-lime">Watch the demo</a>
+            <a href="#benchmark" class="btn btn-dark-outline">See the benchmark</a>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="hero-visual-card">
+            <div class="visual-header">
+              <span class="badge-pill cyan">VISUAL PROJECT DEMO</span>
+              <h3>One saved flow → four model decisions</h3>
+              <p>The demo replays evidence already produced by the experiment.</p>
+            </div>
+
+            <!-- Flow Rail Graphic -->
+            <div class="flow-rail-container">
+              <div class="flow-rail">
+                <div class="flow-packet dot-cyan" style="left: 14%;"></div>
+                <div class="flow-packet dot-lime" style="left: 36%;"></div>
+                <div class="flow-packet dot-orange" style="left: 64%;"></div>
+                <div class="flow-packet dot-purple" style="left: 88%;"></div>
+              </div>
+            </div>
+
+            <!-- 4 Mini Model Cards -->
+            <div class="mini-models-grid">
+              <div class="mini-model-card">
+                <div class="mini-model-name">
+                  <span>Majority baseline</span>
+                  <span>0%</span>
+                </div>
+                <div class="mini-bar-bg">
+                  <div class="mini-bar-fill fill-gray" style="width: 2%;"></div>
+                </div>
+              </div>
+
+              <div class="mini-model-card">
+                <div class="mini-model-name">
+                  <span>Logistic regression</span>
+                  <span>88.2%</span>
+                </div>
+                <div class="mini-bar-bg">
+                  <div class="mini-bar-fill fill-cyan" style="width: 88.2%;"></div>
+                </div>
+              </div>
+
+              <div class="mini-model-card">
+                <div class="mini-model-name">
+                  <span>Random forest</span>
+                  <span>94.6%</span>
+                </div>
+                <div class="mini-bar-bg">
+                  <div class="mini-bar-fill fill-teal" style="width: 94.6%;"></div>
+                </div>
+              </div>
+
+              <div class="mini-model-card">
+                <div class="mini-model-name">
+                  <span>Compact MLP</span>
+                  <span>91.8%</span>
+                </div>
+                <div class="mini-bar-bg">
+                  <div class="mini-bar-fill fill-purple" style="width: 91.8%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="visual-footer">
+              Saved replay • not live monitoring • values bind to experiment artifacts
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- STUDY AT A GLANCE -->
+  <section class="container glance-section" aria-label="Study At A Glance">
+    <div class="glance-card">
+      <div class="glance-item">
+        <div class="glance-number">4</div>
+        <div class="glance-label">Models compared</div>
+      </div>
+      <div class="glance-item">
+        <div class="glance-number">12,000</div>
+        <div class="glance-label">Valid synthetic flows</div>
+      </div>
+      <div class="glance-item">
+        <div class="glance-number">5</div>
+        <div class="glance-label">Traffic periods</div>
+      </div>
+      <div class="glance-item">
+        <div class="glance-number">≤10%</div>
+        <div class="glance-label">False-alarm cap</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENCHMARK SECTION -->
+  <section id="benchmark" class="container" style="margin-bottom: 70px;">
+    <div class="section-header">
+      <span class="section-label">BENCHMARK</span>
+      <h2 class="section-title">The benchmark tells the story at a glance.</h2>
+      <p class="section-subtitle">
+        Example saved-evidence values from the current project UI brief. The implemented website should bind these views to metrics.csv.
+      </p>
+    </div>
+
+    <!-- ROW 1: Attack Detection & Research Answer -->
+    <div class="benchmark-grid">
+      <!-- Left: Attack Detection Chart -->
+      <div class="white-card">
+        <h3 class="card-title">Attack detection</h3>
+        <p class="card-subtitle">Higher is better — how many attack rows the model finds</p>
+
+        <div class="chart-bars-list">
+          <!-- Random Forest -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Random Forest</span>
+              <span class="chart-val-end">94.6%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-teal" data-width="94.6%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Compact MLP -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Compact MLP</span>
+              <span class="chart-val-end">91.8%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-purple" data-width="91.8%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Logistic Regression -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Logistic Regression</span>
+              <span class="chart-val-end">88.2%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-cyan" data-width="88.2%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Majority Baseline -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Majority baseline</span>
+              <span class="chart-val-end">0.0%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-gray" data-width="0%" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-scale">
+          <span>0%</span>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <!-- Right: Research Answer Card -->
+      <div class="dark-card">
+        <span class="badge-pill cyan">RESEARCH ANSWER</span>
+        <h3 style="font-size: 1.35rem; font-weight: 750; margin-top: 14px; margin-bottom: 2px;">
+          Which model gives the best balance?
+        </h3>
+        <div class="research-winner-name">Random Forest</div>
+        <p class="research-winner-desc">
+          In the current saved-evidence example, it finds the most attacks while remaining well below the study's 10% false-alarm limit.
+        </p>
+        <div class="winner-metrics-pill">
+          94.6% detection • 2.1% false alarms
+        </div>
+        <div class="winner-rule-note">
+          Research rule: maximize attack detection among models staying at or below 10% FPR.
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 2: False Alarms & Why Test on Later Traffic -->
+    <div class="benchmark-grid">
+      <!-- Left: False Alarms Chart -->
+      <div class="white-card">
+        <h3 class="card-title">False alarms</h3>
+        <p class="card-subtitle">Lower is better — benign traffic incorrectly flagged as attack</p>
+
+        <div class="chart-bars-list">
+          <!-- Random Forest: 2.1% out of 10% scale = 21% width -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Random Forest</span>
+              <span class="chart-val-end">2.1%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-teal" data-width="21%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Compact MLP: 3.4% out of 10% scale = 34% width -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Compact MLP</span>
+              <span class="chart-val-end">3.4%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-purple" data-width="34%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Logistic Regression: 4.1% out of 10% scale = 41% width -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Logistic Regression</span>
+              <span class="chart-val-end">4.1%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-cyan" data-width="41%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Majority Baseline: 0.0% -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Majority baseline</span>
+              <span class="chart-val-end">0.0%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-gray" data-width="0%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Red dashed 10% CAP vertical line -->
+          <div class="cap-line-marker"></div>
+        </div>
+
+        <div class="chart-scale">
+          <span>0%</span>
+          <span class="scale-red-label">10% CAP</span>
+        </div>
+      </div>
+
+      <!-- Right: Why Test on Later Traffic -->
+      <div class="dark-card">
+        <span class="badge-pill teal">WHY TEST ON LATER TRAFFIC?</span>
+        <h3 style="font-size: 1.35rem; font-weight: 750; margin-top: 14px; margin-bottom: 6px;">
+          Traffic changes. The test should too.
+        </h3>
+        <p style="font-size: 0.95rem; color: var(--text-muted-light); line-height: 1.6; margin-bottom: 18px;">
+          Instead of only shuffling the same data, the temporal split trains on earlier periods and checks whether the detector still works on later traffic.
+        </p>
+
+        <!-- Period pills -->
+        <div class="periods-flow">
+          <div class="period-pill p-train">
+            <span class="p-name">Period 1</span>
+            <span class="p-role">TRAIN</span>
+          </div>
+          <span class="p-arrow">→</span>
+          <div class="period-pill p-train">
+            <span class="p-name">Period 2</span>
+            <span class="p-role">TRAIN</span>
+          </div>
+          <span class="p-arrow">→</span>
+          <div class="period-pill p-train">
+            <span class="p-name">Period 3</span>
+            <span class="p-role">TRAIN</span>
+          </div>
+          <span class="p-arrow">→</span>
+          <div class="period-pill p-val">
+            <span class="p-name">Period 4</span>
+            <span class="p-role">VALIDATE</span>
+          </div>
+          <span class="p-arrow">→</span>
+          <div class="period-pill p-test">
+            <span class="p-name">Period 5</span>
+            <span class="p-role">HOLDOUT TEST</span>
+          </div>
+        </div>
+
+        <div class="temporal-subbox">
+          <span style="font-size: 0.76rem; font-weight: 800; color: var(--cyan); text-transform: uppercase;">Research question</span>
+          <h4>Does the model still work when later traffic patterns change?</h4>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESEARCH QUESTIONS → ANSWERS SECTION -->
+  <section id="qa" class="container" style="margin-bottom: 70px;">
+    <div class="section-header">
+      <span class="section-label">RESEARCH QUESTIONS → ANSWERS</span>
+      <h2 class="section-title">The project should answer questions, not just show metrics.</h2>
+    </div>
+
+    <div class="qa-grid">
+      <!-- Card 01 (Dark) -->
+      <div class="qa-card dark">
+        <div class="qa-num">01</div>
+        <h3 class="qa-question">Which model wins?</h3>
+        <p class="qa-answer">
+          Random Forest in the current saved-evidence example. It gives the strongest attack detection while staying comfortably below the false-alarm cap.
+        </p>
+      </div>
+
+      <!-- Card 02 (White) -->
+      <div class="qa-card white">
+        <div class="qa-num">02</div>
+        <h3 class="qa-question">Why not use accuracy?</h3>
+        <p class="qa-answer">
+          A detector can look "accurate" while still missing attacks or constantly flagging benign traffic. Detection and false alarms tell a clearer story.
+        </p>
+      </div>
+
+      <!-- Card 03 (White) -->
+      <div class="qa-card white">
+        <div class="qa-num">03</div>
+        <h3 class="qa-question">Why temporal testing?</h3>
+        <p class="qa-answer">
+          Because later traffic can look different. The temporal holdout asks whether the model still works when patterns shift over time.
+        </p>
+      </div>
+
+      <!-- Card 04 (White) -->
+      <div class="qa-card white">
+        <div class="qa-num">04</div>
+        <h3 class="qa-question">Why synthetic data?</h3>
+        <p class="qa-answer">
+          The same declared seed recreates the same study, keeping the benchmark self-contained, reproducible, and easy to audit.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECT DEMONSTRATION TEASER -->
+  <section class="container" style="margin-bottom: 50px;">
+    <div class="teaser-section">
+      <div>
+        <span class="badge-pill cyan">PROJECT DEMONSTRATION</span>
+        <h2 class="teaser-title">Watch one saved flow pass through four models.</h2>
+        <p class="teaser-text">
+          Switch between an attack-like replay and a benign replay. Figma Smart Animate changes the packet pattern and each model's saved probability bar.
+        </p>
+        <a href="./demo.html" class="btn btn-lime">Open demo →</a>
+      </div>
+
+      <div style="background: rgba(9,14,28,0.7); border: 1px solid var(--border-dark); border-radius: var(--radius-lg); padding: 24px;">
+        <span class="badge-pill orange" style="margin-bottom: 12px;">ATTACK-LIKE SAVED FLOW</span>
+        <div class="flow-rail-container" style="margin-bottom: 16px;">
+          <div class="flow-rail">
+            <div class="flow-packet dot-orange" style="left: 20%;"></div>
+            <div class="flow-packet dot-orange" style="left: 45%;"></div>
+            <div class="flow-packet dot-lime" style="left: 75%;"></div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.82rem;">
+          <div style="display: flex; justify-content: space-between; color: var(--text-white);">
+            <span>Random Forest</span><span style="color: #86efac; font-weight: 750;">ATTACK (88%)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; color: var(--text-white);">
+            <span>Compact MLP</span><span style="color: #86efac; font-weight: 750;">ATTACK (86%)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; color: var(--text-white);">
+            <span>Logistic</span><span style="color: #86efac; font-weight: 750;">ATTACK (91%)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM LINE CARD -->
+  <section class="container">
+    <div class="bottom-line-card">
+      <div class="bottom-line-content">
+        <span class="badge-pill teal">BOTTOM LINE</span>
+        <p class="bottom-line-text">
+          The useful model is not the one with the prettiest accuracy score — it is the one that finds attacks while controlling false alarms.
+        </p>
+      </div>
+      <div class="bottom-line-tag">
+        Synthetic benchmark • binary BENIGN vs ATTACK • reproducible research
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        CYBER ML RESEARCH
+      </div>
+      <div>
+        Reproducible Machine-Learning Benchmark • Artifact-backed Presentation
+      </div>
+    </div>
+  </footer>
+
+  <script src="./assets/js/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research Results & Benchmark — Cyberattack Detection ML</title>
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body>
+
+  <!-- LIGHT NAVBAR -->
+  <header class="site-nav light" aria-label="Main Navigation">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+      <a href="./index.html" class="brand">
+        <span class="brand-dot"></span>
+        CYBER ML RESEARCH
+      </a>
+      <ul class="nav-links">
+        <li><a href="./index.html">Overview</a></li>
+        <li><a href="./demo.html">Demo</a></li>
+        <li><a href="./results.html" class="active">Results</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- RESULTS HEADER (2 Columns) -->
+    <div class="results-header-grid">
+      <div class="results-intro-box">
+        <span class="badge-pill cyan">RESEARCH ANSWER</span>
+        <h1 class="hero-title" style="color: var(--text-dark); margin-top: 12px; margin-bottom: 14px;">
+          Which model gives the best balance?
+        </h1>
+        <p class="hero-subtitle" style="color: var(--text-muted-dark); margin-bottom: 0;">
+          The study does not reward “accuracy” alone. A useful detector should find attacks while keeping false alarms under control.
+        </p>
+      </div>
+
+      <!-- Winning Model Dark Card -->
+      <div class="results-winner-card">
+        <span class="badge-pill teal" style="width: fit-content; margin-bottom: 8px;">ANSWER FROM SAVED EVIDENCE</span>
+        <h2 class="winner-card-title">Random Forest</h2>
+        <p class="winner-card-desc">
+          Strongest attack detection in the current saved-evidence example while remaining comfortably below the 10% false-alarm cap.
+        </p>
+        <span class="winner-card-lime">
+          Maximize detection among models with FPR ≤ 10%.
+        </span>
+      </div>
+    </div>
+
+    <!-- BENCHMARK CHARTS (2 Large White Cards Side-by-Side) -->
+    <div class="benchmark-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); margin-bottom: 40px;">
+      <!-- Card 1: Attack Detection -->
+      <div class="white-card">
+        <h3 class="card-title">Attack detection</h3>
+        <p class="card-subtitle">Higher is better — how many attack rows the model finds</p>
+
+        <div class="chart-bars-list">
+          <!-- Random Forest -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Random Forest</span>
+              <span class="chart-val-end">94.6%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-teal" data-width="94.6%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Compact MLP -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Compact MLP</span>
+              <span class="chart-val-end">91.8%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-purple" data-width="91.8%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Logistic Regression -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Logistic Regression</span>
+              <span class="chart-val-end">88.2%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-cyan" data-width="88.2%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Majority Baseline -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Majority baseline</span>
+              <span class="chart-val-end">0.0%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-gray" data-width="0%" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-scale">
+          <span>0%</span>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <!-- Card 2: False Alarms -->
+      <div class="white-card">
+        <h3 class="card-title">False alarms</h3>
+        <p class="card-subtitle">Lower is better — benign traffic incorrectly flagged as attack</p>
+
+        <div class="chart-bars-list">
+          <!-- Random Forest: 2.1% out of 10% = 21% width -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Random Forest</span>
+              <span class="chart-val-end">2.1%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-teal" data-width="21%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Compact MLP: 3.4% out of 10% = 34% width -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Compact MLP</span>
+              <span class="chart-val-end">3.4%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-purple" data-width="34%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Logistic Regression: 4.1% out of 10% = 41% width -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Logistic Regression</span>
+              <span class="chart-val-end">4.1%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-cyan" data-width="41%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Majority Baseline: 0.0% -->
+          <div class="chart-row">
+            <div class="chart-row-meta">
+              <span>Majority baseline</span>
+              <span class="chart-val-end">0.0%</span>
+            </div>
+            <div class="chart-track">
+              <div class="chart-fill fill-gray" data-width="0%" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Red dashed 10% CAP line -->
+          <div class="cap-line-marker"></div>
+        </div>
+
+        <div class="chart-scale">
+          <span>0%</span>
+          <span class="scale-red-label">10% CAP</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMPORAL RESEARCH SECTION (Large Dark Card) -->
+    <div class="temporal-card">
+      <div class="temporal-grid">
+        <div>
+          <span class="badge-pill teal">WHY TEST ON LATER TRAFFIC?</span>
+          <h2 style="font-size: 1.8rem; font-weight: 800; margin-top: 14px; margin-bottom: 8px;">
+            Traffic changes. The test should too.
+          </h2>
+          <p style="font-size: 0.96rem; color: var(--text-muted-light); line-height: 1.6; margin-bottom: 22px;">
+            Instead of only shuffling the same data, the temporal split trains on earlier periods and checks whether the detector still works on later traffic.
+          </p>
+
+          <!-- Period pills -->
+          <div class="periods-flow">
+            <div class="period-pill p-train">
+              <span class="p-name">Period 1</span>
+              <span class="p-role">TRAIN</span>
+            </div>
+            <span class="p-arrow">→</span>
+            <div class="period-pill p-train">
+              <span class="p-name">Period 2</span>
+              <span class="p-role">TRAIN</span>
+            </div>
+            <span class="p-arrow">→</span>
+            <div class="period-pill p-train">
+              <span class="p-name">Period 3</span>
+              <span class="p-role">TRAIN</span>
+            </div>
+            <span class="p-arrow">→</span>
+            <div class="period-pill p-val">
+              <span class="p-name">Period 4</span>
+              <span class="p-role">VALIDATE</span>
+            </div>
+            <span class="p-arrow">→</span>
+            <div class="period-pill p-test">
+              <span class="p-name">Period 5</span>
+              <span class="p-role">HOLDOUT TEST</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side Boxed Panel -->
+        <div class="temporal-subbox" style="display: flex; flex-direction: column; justify-content: center;">
+          <span style="font-size: 0.76rem; font-weight: 800; color: var(--cyan); text-transform: uppercase;">RESEARCH QUESTION</span>
+          <h3 style="font-size: 1.35rem; font-weight: 750; color: var(--text-white); margin-top: 8px; margin-bottom: 12px; line-height: 1.3;">
+            Does the detector still work<br>
+            when later traffic changes?
+          </h3>
+          <p style="font-size: 0.92rem; color: var(--text-muted-light); line-height: 1.6;">
+            Earlier periods teach the model. Period 4 is used to validate. Period 5 stays untouched until final holdout evaluation.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESEARCH QUESTION -> ANSWER (4 Cards) -->
+    <section style="margin-bottom: 70px;">
+      <div class="section-header">
+        <h2 class="section-title" style="font-size: 1.7rem;">Research question → answer</h2>
+      </div>
+
+      <div class="qa-grid">
+        <!-- Q1 -->
+        <div class="qa-card white">
+          <div style="font-size: 0.8rem; font-weight: 800; color: var(--teal); margin-bottom: 8px;">Q</div>
+          <h4 class="qa-question" style="font-size: 1.05rem;">Which model wins?</h4>
+          <div style="font-size: 0.8rem; font-weight: 800; color: var(--teal); margin-top: 6px; margin-bottom: 4px;">A</div>
+          <p class="qa-answer">Random Forest in the current saved-evidence example.</p>
+        </div>
+
+        <!-- Q2 -->
+        <div class="qa-card white">
+          <div style="font-size: 0.8rem; font-weight: 800; color: var(--teal); margin-bottom: 8px;">Q</div>
+          <h4 class="qa-question" style="font-size: 1.05rem;">Why cap false alarms?</h4>
+          <div style="font-size: 0.8rem; font-weight: 800; color: var(--teal); margin-top: 6px; margin-bottom: 4px;">A</div>
+          <p class="qa-answer">Because high recall is not useful if benign traffic is constantly flagged.</p>
+        </div>
+
+        <!-- Q3 -->
+        <div class="qa-card white">
+          <div style="font-size: 0.8rem; font-weight: 800; color: var(--teal); margin-bottom: 8px;">Q</div>
+          <h4 class="qa-question" style="font-size: 1.05rem;">Why temporal testing?</h4>
+          <div style="font-size: 0.8rem; font-weight: 800; color: var(--teal); margin-top: 6px; margin-bottom: 4px;">A</div>
+          <p class="qa-answer">It checks whether the detector still works when later traffic patterns change.</p>
+        </div>
+
+        <!-- Q4 -->
+        <div class="qa-card white">
+          <div style="font-size: 0.8rem; font-weight: 800; color: var(--teal); margin-bottom: 8px;">Q</div>
+          <h4 class="qa-question" style="font-size: 1.05rem;">Why synthetic data?</h4>
+          <div style="font-size: 0.8rem; font-weight: 800; color: var(--teal); margin-top: 6px; margin-bottom: 4px;">A</div>
+          <p class="qa-answer">The same declared seed recreates the same study, keeping it reproducible and auditable.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        CYBER ML RESEARCH
+      </div>
+      <div>
+        Reproducible Machine-Learning Benchmark • Artifact-backed Presentation
+      </div>
+    </div>
+  </footer>
+
+  <script src="./assets/js/site.js"></script>
+</body>
+</html>

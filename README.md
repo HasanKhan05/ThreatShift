@@ -6,6 +6,13 @@ This repository is a reproducible research and educational demonstration of bina
 
 The generated records are not captured network traffic and are not derived from an operational dataset. The later-period evaluation is a deliberately controlled, within-scenario shift. It is not evidence of real-network realism, privacy protection, zero-day detection, deployment readiness, or generalization to other organizations.
 
+## Live Research Demo
+
+Explore the static interactive presentation website and research findings directly in the browser:
+
+- **Live Research Website**: [https://hasankhan05.github.io/Cyberattack-Detection-Using-Machine-Learning/](https://hasankhan05.github.io/Cyberattack-Detection-Using-Machine-Learning/)
+- Includes the full study overview, benchmark comparison against the 10% FPR false-alarm budget, temporal shift analysis, interactive Attack vs. Benign replay inspector, and research conclusions.
+
 ## Reproduce the synthetic study
 
 Use Python 3.11+ and [uv](https://docs.astral.sh/uv/). This is the sole supported input path; it needs no external cybersecurity dataset or network acquisition. Choose a new, timestamped output directory because the generated evidence is immutable.
