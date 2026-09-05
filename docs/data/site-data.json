@@ -13,19 +13,19 @@
     "periods_label": "Traffic periods",
     "false_alarm_cap": "\u226410%",
     "false_alarm_label": "False-alarm cap",
-    "dataset_source_note": "Illustrative research-demo visualization. The framework evaluates candidate models against attack detection and the \u226410% false-alarm constraint. Run the local reproduction pipeline (`reproduce.py`) for verified empirical metrics."
+    "dataset_source_note": "Measured Results. The framework evaluated candidate models against attack detection and the <=10% false-alarm constraint using reproducible artifacts."
   },
   "benchmark": {
     "title": "The benchmark tells the story at a glance.",
-    "subtitle": "Illustrative research-demo visualization. The framework evaluates candidate models against attack detection and the \u226410% false-alarm constraint. Run the local reproduction pipeline (`reproduce.py`) for verified empirical metrics.",
+    "subtitle": "Measured Results. The framework evaluated candidate models against attack detection and the <=10% false-alarm constraint using reproducible artifacts.",
     "models": [
       {
         "id": "random_forest",
         "name": "Random Forest",
-        "attack_detection": null,
-        "attack_detection_display": "Illustrative",
-        "false_alarms": null,
-        "false_alarms_display": "Illustrative",
+        "attack_detection": 0.4520710059171597,
+        "attack_detection_display": "45.2%",
+        "false_alarms": 0.08510182207931404,
+        "false_alarms_display": "8.5%",
         "color": "teal",
         "hex": "#0d9e85",
         "is_recommended": false
@@ -33,10 +33,10 @@
       {
         "id": "compact_mlp",
         "name": "Compact MLP",
-        "attack_detection": null,
-        "attack_detection_display": "Illustrative",
-        "false_alarms": null,
-        "false_alarms_display": "Illustrative",
+        "attack_detection": 0.495069033530572,
+        "attack_detection_display": "49.5%",
+        "false_alarms": 0.09539121114683813,
+        "false_alarms_display": "9.5%",
         "color": "purple",
         "hex": "#6e5ced",
         "is_recommended": false
@@ -44,13 +44,13 @@
       {
         "id": "logistic_regression",
         "name": "Logistic Regression",
-        "attack_detection": null,
-        "attack_detection_display": "Illustrative",
-        "false_alarms": null,
-        "false_alarms_display": "Illustrative",
+        "attack_detection": 0.5017751479289941,
+        "attack_detection_display": "50.2%",
+        "false_alarms": 0.095176848874598,
+        "false_alarms_display": "9.5%",
         "color": "cyan",
         "hex": "#00c2ff",
-        "is_recommended": false
+        "is_recommended": true
       },
       {
         "id": "majority_baseline",
@@ -67,7 +67,7 @@
     "recommendation": {
       "model": "Predeclared Rule",
       "pill": "Predeclared rule: FPR \u2264 10%",
-      "explanation": "The research framework selects the model that maximizes attack detection while strictly respecting the 10% false-alarm limit. Empirical winner is established by local artifact reproduction.",
+      "explanation": "The research framework selects the model that maximizes attack detection while strictly respecting the 10% false-alarm limit. Results are empirical.",
       "rule": "Research rule: maximize attack detection among models staying at or below 10% FPR."
     }
   },
@@ -154,24 +154,24 @@
             "name": "Majority baseline",
             "badge": "BASELINE",
             "badge_type": "baseline",
-            "score": 0.0,
-            "score_display": "0%"
+            "score": 0.3520852401384169,
+            "score_display": "35%"
           },
           {
             "id": "logistic-regression-v1",
             "name": "Logistic regression",
-            "badge": "ATTACK",
-            "badge_type": "attack",
-            "score": 0.91,
-            "score_display": "91%"
+            "badge": "BENIGN",
+            "badge_type": "benign",
+            "score": 0.4815496387249541,
+            "score_display": "48%"
           },
           {
             "id": "random-forest-v1",
             "name": "Random Forest",
             "badge": "ATTACK",
             "badge_type": "attack",
-            "score": 0.88,
-            "score_display": "88%",
+            "score": 0.562823935976399,
+            "score_display": "56%",
             "is_highlighted": true
           },
           {
@@ -179,8 +179,8 @@
             "name": "Compact MLP",
             "badge": "ATTACK",
             "badge_type": "attack",
-            "score": 0.86,
-            "score_display": "86%"
+            "score": 0.5635203567451323,
+            "score_display": "56%"
           }
         ]
       },
@@ -195,40 +195,40 @@
           "Longer duration",
           "Stable byte pattern"
         ],
-        "disclaimer": "This state replays a saved benign example so visitors can compare how the same four models respond to calmer traffic.",
+        "disclaimer": "This is a deterministic saved replay. No live network is monitored, no model is retrained, and no new traffic is scored here.",
         "models": [
           {
             "id": "majority-v1",
             "name": "Majority baseline",
-            "badge": "BENIGN",
-            "badge_type": "benign",
-            "score": 0.0,
-            "score_display": "0%"
+            "badge": "BASELINE",
+            "badge_type": "baseline",
+            "score": 0.3520852401384169,
+            "score_display": "35%"
           },
           {
             "id": "logistic-regression-v1",
             "name": "Logistic regression",
-            "badge": "BENIGN",
-            "badge_type": "benign",
-            "score": 0.09,
-            "score_display": "9%"
+            "badge": "ATTACK",
+            "badge_type": "attack",
+            "score": 0.5925480138107527,
+            "score_display": "59%"
           },
           {
             "id": "random-forest-v1",
             "name": "Random Forest",
-            "badge": "BENIGN",
-            "badge_type": "benign",
-            "score": 0.05,
-            "score_display": "5%",
+            "badge": "ATTACK",
+            "badge_type": "attack",
+            "score": 0.5234716058463817,
+            "score_display": "52%",
             "is_highlighted": true
           },
           {
             "id": "compact-mlp-v1",
             "name": "Compact MLP",
-            "badge": "BENIGN",
-            "badge_type": "benign",
-            "score": 0.08,
-            "score_display": "8%"
+            "badge": "ATTACK",
+            "badge_type": "attack",
+            "score": 0.6068733016109933,
+            "score_display": "61%"
           }
         ]
       }

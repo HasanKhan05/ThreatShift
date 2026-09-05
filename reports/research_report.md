@@ -23,3 +23,20 @@ Saved metrics, error slices, ablations, and explanation status describe only the
 NIST’s [AI RMF](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf) emphasizes documented testing, evaluation, verification, validation, uncertainty, and limits to generalization. This project follows that posture by preserving artifacts and reporting unavailable evidence plainly. No numerical conclusion is asserted here without a generated, validated artifact.
 
 Synthetic data does not automatically establish utility, realism, or privacy. [NIST SP 800-226](https://doi.org/10.6028/NIST.SP.800-226) discusses synthetic-data privacy hazards and utility uncertainty. This generator uses no private source traffic, but it offers no anonymity, disclosure-risk, or privacy guarantee.
+## Canonical Results (Primary Experiment)
+
+Based on the verified reproduction artifacts, the following mean performance was recorded on the **random evaluation split**:
+
+- **Random Forest**: 45.2% attack detection, 8.5% false alarms
+- **Compact Mlp**: 49.5% attack detection, 9.5% false alarms
+- **Logistic Regression**: 50.2% attack detection, 9.5% false alarms
+- **Majority**: 0.0% attack detection, 0.0% false alarms
+
+Performance on the **chronological (temporal) holdout split**, measuring robustness to covariate shift:
+
+- **Random Forest**: 49.3% attack detection, 15.9% false alarms
+- **Compact Mlp**: 52.8% attack detection, 15.3% false alarms
+- **Logistic Regression**: 53.4% attack detection, 15.2% false alarms
+- **Majority**: 0.0% attack detection, 0.0% false alarms
+
+**Recommendation**: Logistic Regression is the recommended model because it maximizes attack detection while satisfying the predefined ≤10% false-alarm constraint on the random split.
