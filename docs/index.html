@@ -75,30 +75,30 @@
               <div class="mini-model-card">
                 <div class="mini-model-name">
                   <span>Logistic regression</span>
-                  <span>88.2%</span>
+                  <span>Illustrative</span>
                 </div>
                 <div class="mini-bar-bg">
-                  <div class="mini-bar-fill fill-cyan" style="width: 88.2%;"></div>
+                  <div class="mini-bar-fill fill-cyan" style="width: 70%;"></div>
                 </div>
               </div>
 
               <div class="mini-model-card">
                 <div class="mini-model-name">
                   <span>Random forest</span>
-                  <span>94.6%</span>
+                  <span>Illustrative</span>
                 </div>
                 <div class="mini-bar-bg">
-                  <div class="mini-bar-fill fill-teal" style="width: 94.6%;"></div>
+                  <div class="mini-bar-fill fill-teal" style="width: 85%;"></div>
                 </div>
               </div>
 
               <div class="mini-model-card">
                 <div class="mini-model-name">
                   <span>Compact MLP</span>
-                  <span>91.8%</span>
+                  <span>Illustrative</span>
                 </div>
                 <div class="mini-bar-bg">
-                  <div class="mini-bar-fill fill-purple" style="width: 91.8%;"></div>
+                  <div class="mini-bar-fill fill-purple" style="width: 75%;"></div>
                 </div>
               </div>
             </div>
@@ -137,10 +137,10 @@
   <!-- BENCHMARK SECTION -->
   <section id="benchmark" class="container" style="margin-bottom: 70px;">
     <div class="section-header">
-      <span class="section-label">BENCHMARK</span>
+      <span class="section-label">ILLUSTRATIVE BENCHMARK</span>
       <h2 class="section-title">The benchmark tells the story at a glance.</h2>
       <p class="section-subtitle">
-        <strong>NOTE:</strong> The values shown below (e.g., 94.6% detection) are visual placeholders from the project design brief. A live implementation would bind these views directly to the experiment's actual `metrics.csv`.
+        Illustrative research-demo visualization. The framework evaluates candidate models against attack detection and the ≤10% false-alarm constraint. Run the local reproduction pipeline (`reproduce.py`) for verified empirical metrics.
       </p>
     </div>
 
@@ -149,17 +149,17 @@
       <!-- Left: Attack Detection Chart -->
       <div class="white-card">
         <h3 class="card-title">Attack detection</h3>
-        <p class="card-subtitle">Higher is better — how many attack rows the model finds</p>
+        <p class="card-subtitle">Higher is better — illustrative research-demo visualization</p>
 
         <div class="chart-bars-list">
           <!-- Random Forest -->
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Random Forest</span>
-              <span class="chart-val-end">94.6%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-teal" data-width="94.6%" style="width: 0%;"></div>
+              <div class="chart-fill fill-teal" data-width="85%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -167,10 +167,10 @@
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Compact MLP</span>
-              <span class="chart-val-end">91.8%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-purple" data-width="91.8%" style="width: 0%;"></div>
+              <div class="chart-fill fill-purple" data-width="75%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -178,10 +178,10 @@
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Logistic Regression</span>
-              <span class="chart-val-end">88.2%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-cyan" data-width="88.2%" style="width: 0%;"></div>
+              <div class="chart-fill fill-cyan" data-width="70%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -205,19 +205,19 @@
 
       <!-- Right: Research Answer Card -->
       <div class="dark-card">
-        <span class="badge-pill cyan">RESEARCH ANSWER</span>
+        <span class="badge-pill cyan">SELECTION PROTOCOL</span>
         <h3 style="font-size: 1.35rem; font-weight: 750; margin-top: 14px; margin-bottom: 2px;">
           Which model gives the best balance?
         </h3>
-        <div class="research-winner-name">Random Forest</div>
+        <div class="research-winner-name">Predeclared Rule</div>
         <p class="research-winner-desc">
-          In the current saved-evidence example, it finds the most attacks while remaining well below the study's 10% false-alarm limit.
+          The research framework selects the model maximizing attack detection while strictly staying at or below the 10% false-alarm limit.
         </p>
         <div class="winner-metrics-pill">
-          94.6% detection • 2.1% false alarms
+          Decision rule: Maximize detection • FPR ≤ 10%
         </div>
         <div class="winner-rule-note">
-          Research rule: maximize attack detection among models staying at or below 10% FPR.
+          Illustrative visualization. Empirical rankings are established via local reproduction artifacts, not static placeholders.
         </div>
       </div>
     </div>
@@ -227,39 +227,39 @@
       <!-- Left: False Alarms Chart -->
       <div class="white-card">
         <h3 class="card-title">False alarms</h3>
-        <p class="card-subtitle">Lower is better — benign traffic incorrectly flagged as attack</p>
+        <p class="card-subtitle">Lower is better — illustrative research-demo visualization</p>
 
         <div class="chart-bars-list">
-          <!-- Random Forest: 2.1% out of 10% scale = 21% width -->
+          <!-- Random Forest -->
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Random Forest</span>
-              <span class="chart-val-end">2.1%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-teal" data-width="21%" style="width: 0%;"></div>
+              <div class="chart-fill fill-teal" data-width="25%" style="width: 0%;"></div>
             </div>
           </div>
 
-          <!-- Compact MLP: 3.4% out of 10% scale = 34% width -->
+          <!-- Compact MLP -->
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Compact MLP</span>
-              <span class="chart-val-end">3.4%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-purple" data-width="34%" style="width: 0%;"></div>
+              <div class="chart-fill fill-purple" data-width="35%" style="width: 0%;"></div>
             </div>
           </div>
 
-          <!-- Logistic Regression: 4.1% out of 10% scale = 41% width -->
+          <!-- Logistic Regression -->
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Logistic Regression</span>
-              <span class="chart-val-end">4.1%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-cyan" data-width="41%" style="width: 0%;"></div>
+              <div class="chart-fill fill-cyan" data-width="45%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -343,7 +343,7 @@
         <div class="qa-num">01</div>
         <h3 class="qa-question">Which model wins?</h3>
         <p class="qa-answer">
-          Random Forest in the current saved-evidence example. It gives the strongest attack detection while staying comfortably below the false-alarm cap.
+          Selected by the predeclared rule (highest recall at FPR ≤ 10%) on verified local reproduction. In this illustrative demo layout, models illustrate the comparison protocol.
         </p>
       </div>
 

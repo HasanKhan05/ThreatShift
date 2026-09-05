@@ -38,11 +38,10 @@
 
       <!-- Winning Model Dark Card -->
       <div class="results-winner-card">
-        <span class="badge-pill teal" style="width: fit-content; margin-bottom: 8px;">ANSWER FROM SAVED EVIDENCE</span>
-        <h2 class="winner-card-title">Random Forest</h2>
+        <span class="badge-pill teal" style="width: fit-content; margin-bottom: 8px;">RESEARCH PROTOCOL RULE</span>
+        <h2 class="winner-card-title">Predeclared Rule</h2>
         <p class="winner-card-desc">
-          Strongest attack detection in the current saved-evidence example while remaining comfortably below the 10% false-alarm cap.
-          <br><br><strong>NOTE:</strong> The values shown (e.g., 94.6% detection) are visual placeholders from the design brief. A live implementation would bind to the experiment's actual metrics.
+          Evaluates which model achieves maximum attack detection while remaining at or below the study's 10% false-alarm limit across splits.
         </p>
         <span class="winner-card-lime">
           Maximize detection among models with FPR ≤ 10%.
@@ -55,17 +54,17 @@
       <!-- Card 1: Attack Detection -->
       <div class="white-card">
         <h3 class="card-title">Attack detection</h3>
-        <p class="card-subtitle">Higher is better — how many attack rows the model finds</p>
+        <p class="card-subtitle">Higher is better — illustrative research-demo visualization</p>
 
         <div class="chart-bars-list">
           <!-- Random Forest -->
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Random Forest</span>
-              <span class="chart-val-end">94.6%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-teal" data-width="94.6%" style="width: 0%;"></div>
+              <div class="chart-fill fill-teal" data-width="85%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -73,10 +72,10 @@
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Compact MLP</span>
-              <span class="chart-val-end">91.8%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-purple" data-width="91.8%" style="width: 0%;"></div>
+              <div class="chart-fill fill-purple" data-width="75%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -84,10 +83,10 @@
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Logistic Regression</span>
-              <span class="chart-val-end">88.2%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-cyan" data-width="88.2%" style="width: 0%;"></div>
+              <div class="chart-fill fill-cyan" data-width="70%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -112,39 +111,39 @@
       <!-- Card 2: False Alarms -->
       <div class="white-card">
         <h3 class="card-title">False alarms</h3>
-        <p class="card-subtitle">Lower is better — benign traffic incorrectly flagged as attack</p>
+        <p class="card-subtitle">Lower is better — illustrative research-demo visualization</p>
 
         <div class="chart-bars-list">
-          <!-- Random Forest: 2.1% out of 10% = 21% width -->
+          <!-- Random Forest -->
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Random Forest</span>
-              <span class="chart-val-end">2.1%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-teal" data-width="21%" style="width: 0%;"></div>
+              <div class="chart-fill fill-teal" data-width="25%" style="width: 0%;"></div>
             </div>
           </div>
 
-          <!-- Compact MLP: 3.4% out of 10% = 34% width -->
+          <!-- Compact MLP -->
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Compact MLP</span>
-              <span class="chart-val-end">3.4%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-purple" data-width="34%" style="width: 0%;"></div>
+              <div class="chart-fill fill-purple" data-width="35%" style="width: 0%;"></div>
             </div>
           </div>
 
-          <!-- Logistic Regression: 4.1% out of 10% = 41% width -->
+          <!-- Logistic Regression -->
           <div class="chart-row">
             <div class="chart-row-meta">
               <span>Logistic Regression</span>
-              <span class="chart-val-end">4.1%</span>
+              <span class="chart-val-end">Illustrative</span>
             </div>
             <div class="chart-track">
-              <div class="chart-fill fill-cyan" data-width="41%" style="width: 0%;"></div>
+              <div class="chart-fill fill-cyan" data-width="45%" style="width: 0%;"></div>
             </div>
           </div>
 
@@ -237,7 +236,7 @@
           <div style="font-size: 0.8rem; font-weight: 800; color: var(--teal); margin-bottom: 8px;">Q</div>
           <h4 class="qa-question" style="font-size: 1.05rem;">Which model wins?</h4>
           <div style="font-size: 0.8rem; font-weight: 800; color: var(--teal); margin-top: 6px; margin-bottom: 4px;">A</div>
-          <p class="qa-answer">Random Forest in the current saved-evidence example.</p>
+          <p class="qa-answer">The model maximizing attack detection while keeping false alarms ≤ 10% on verified local reproduction runs.</p>
         </div>
 
         <!-- Q2 -->

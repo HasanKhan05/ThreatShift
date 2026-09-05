@@ -28,35 +28,37 @@ SNAPSHOT = {
         "false_alarm_cap": "≤10%",
         "false_alarm_label": "False-alarm cap",
         "dataset_source_note": (
-            "Example saved-evidence values from the current project UI brief. The implemented "
-            "website should bind these views to metrics.csv."
+            "Illustrative research-demo visualization. The framework evaluates candidate models "
+            "against attack detection and the ≤10% false-alarm constraint. Run the local "
+            "reproduction pipeline (`reproduce.py`) for verified empirical metrics."
         ),
     },
     "benchmark": {
         "title": "The benchmark tells the story at a glance.",
         "subtitle": (
-            "Example saved-evidence values from the current project UI brief. The implemented "
-            "website should bind these views to metrics.csv."
+            "Illustrative research-demo visualization. The framework evaluates candidate models "
+            "against attack detection and the ≤10% false-alarm constraint. Run the local "
+            "reproduction pipeline (`reproduce.py`) for verified empirical metrics."
         ),
         "models": [
             {
                 "id": "random_forest",
                 "name": "Random Forest",
-                "attack_detection": 94.6,
-                "attack_detection_display": "94.6%",
-                "false_alarms": 2.1,
-                "false_alarms_display": "2.1%",
+                "attack_detection": None,
+                "attack_detection_display": "Illustrative",
+                "false_alarms": None,
+                "false_alarms_display": "Illustrative",
                 "color": "teal",
                 "hex": "#0d9e85",
-                "is_recommended": True,
+                "is_recommended": False,
             },
             {
                 "id": "compact_mlp",
                 "name": "Compact MLP",
-                "attack_detection": 91.8,
-                "attack_detection_display": "91.8%",
-                "false_alarms": 3.4,
-                "false_alarms_display": "3.4%",
+                "attack_detection": None,
+                "attack_detection_display": "Illustrative",
+                "false_alarms": None,
+                "false_alarms_display": "Illustrative",
                 "color": "purple",
                 "hex": "#6e5ced",
                 "is_recommended": False,
@@ -64,10 +66,10 @@ SNAPSHOT = {
             {
                 "id": "logistic_regression",
                 "name": "Logistic Regression",
-                "attack_detection": 88.2,
-                "attack_detection_display": "88.2%",
-                "false_alarms": 4.1,
-                "false_alarms_display": "4.1%",
+                "attack_detection": None,
+                "attack_detection_display": "Illustrative",
+                "false_alarms": None,
+                "false_alarms_display": "Illustrative",
                 "color": "cyan",
                 "hex": "#00c2ff",
                 "is_recommended": False,
@@ -85,11 +87,12 @@ SNAPSHOT = {
             },
         ],
         "recommendation": {
-            "model": "Random Forest",
-            "pill": "94.6% detection • 2.1% false alarms",
+            "model": "Predeclared Rule",
+            "pill": "Predeclared rule: FPR ≤ 10%",
             "explanation": (
-                "In the current saved-evidence example, it finds the most attacks while "
-                "remaining well below the study's 10% false-alarm limit."
+                "The research framework selects the model that maximizes attack detection "
+                "while strictly respecting the 10% false-alarm limit. Empirical winner is "
+                "established by local artifact reproduction."
             ),
             "rule": (
                 "Research rule: maximize attack detection among models staying at or below 10% FPR."
@@ -244,8 +247,9 @@ SNAPSHOT = {
             "id": "01",
             "question": "Which model wins?",
             "answer": (
-                "Random Forest in the current saved-evidence example. It gives the strongest "
-                "attack detection while staying comfortably below the false-alarm cap."
+                "Selected by the predeclared rule (highest recall at FPR ≤ 10%) on verified "
+                "local reproduction. In this illustrative demo layout, models illustrate "
+                "the comparison protocol."
             ),
             "is_dark": True,
         },
