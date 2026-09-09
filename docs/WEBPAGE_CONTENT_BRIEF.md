@@ -2,7 +2,7 @@
 
 The website has two pages selected through the left sidebar: **Research Overview** and **Model Results**. The highlighted navigation button and the “Viewing” text show which page is open. Every result displayed by the website is read from saved experiment artifacts; the website does not generate data, train models, or score traffic.
 
-## Page 1 — Cyberattack Detection Research Results
+## Page 1 — ThreatShift Research Results
 
 ### Main introduction
 

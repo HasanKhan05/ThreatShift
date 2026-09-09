@@ -1,5 +1,5 @@
-﻿/**
- * Cyberattack Detection ML — Site JavaScript
+/**
+ * ThreatShift — Site JavaScript
  * Handles dynamic data population, active navigation, and chart animations.
  */
 

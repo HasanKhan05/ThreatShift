@@ -7,8 +7,8 @@ from pathlib import Path
 
 SNAPSHOT = {
     "project_metadata": {
-        "name": "Cyberattack Detection Using Machine Learning",
-        "brand": "CYBER ML RESEARCH",
+        "name": "ThreatShift",
+        "brand": "ThreatShift",
         "question": "Can machine learning catch more attacks without drowning us in false alarms?",
         "subtitle": "We compare four machine-learning models on the "
         "same reproducible network-flow study and judge "

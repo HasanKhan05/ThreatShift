@@ -1,4 +1,6 @@
-# Cyberattack Detection Using Machine Learning
+# ThreatShift
+
+Evaluating ML-Based Intrusion Detection Under False-Alarm Constraints and Temporal Shift
 
 This repository is a reproducible research and educational demonstration of binary `BENIGN` versus `ATTACK` classification on deterministic synthetic network-flow records. It compares a majority baseline, logistic regression, random forest, and a compact MLP under one fixed protocol. The research question is: which model best balances attack detection, false alarms, and confidence reliability when controlled traffic patterns change over time?
 
@@ -10,7 +12,8 @@ The generated records are not captured network traffic and are not derived from 
 
 Explore the static interactive presentation website and research findings directly in the browser:
 
-- **Live Research Website**: [https://hasankhan05.github.io/Cyberattack-Detection-Using-Machine-Learning/](https://hasankhan05.github.io/Cyberattack-Detection-Using-Machine-Learning/)
+- **Live Research Website**: [https://hasankhan05.github.io/ThreatShift/](https://hasankhan05.github.io/ThreatShift/)
+- **GitHub Repository**: [https://github.com/HasanKhan05/ThreatShift](https://github.com/HasanKhan05/ThreatShift)
 - Includes the full study overview, benchmark comparison against the 10% FPR false-alarm budget, temporal shift analysis, interactive Attack vs. Benign replay inspector, and research conclusions.
 
 ## Reproduce the synthetic study

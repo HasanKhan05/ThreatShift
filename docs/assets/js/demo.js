@@ -1,5 +1,5 @@
-﻿/**
- * Cyberattack Detection ML — Interactive Demo JavaScript
+/**
+ * ThreatShift — Interactive Demo JavaScript
  * Handles smooth client-side switching between Attack-like and Benign replay states.
  */
 
