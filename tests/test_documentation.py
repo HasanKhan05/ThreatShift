@@ -53,10 +53,8 @@ def test_beginner_docs_explain_timestamped_synthetic_run_and_scope() -> None:
 
 
 def test_demo_run_of_show_matches_the_simplified_two_page_ui() -> None:
-    """Removed dashboard sections must not remain as active presentation steps."""
+    """The public demo guide must retain the simplified presentation contract."""
     demo = (ROOT / "demo" / "run_demo.md").read_text(encoding="utf-8")
-    staged = (ROOT / "STAGED_DELIVERY_PLAN.md").read_text(encoding="utf-8")
-    staged_run = staged.split("## Demo Run of Show", maxsplit=1)[1]
     removed_topics = (
         "cleaning counts",
         "feature units",
@@ -76,10 +74,7 @@ def test_demo_run_of_show_matches_the_simplified_two_page_ui() -> None:
         "feature-group ablation",
         "attack-like examples",
     )
-    violations = {
-        name: [topic for topic in removed_topics if topic in text.casefold()]
-        for name, text in {"demo/run_demo.md": demo, "STAGED_DELIVERY_PLAN.md": staged_run}.items()
-    }
+    violations = [topic for topic in removed_topics if topic in demo.casefold()]
     required_topics = (
         "Normal pattern",
         "Suspicious pattern",
@@ -91,8 +86,8 @@ def test_demo_run_of_show_matches_the_simplified_two_page_ui() -> None:
         "Overall recommendation",
     )
 
-    assert not {name: matches for name, matches in violations.items() if matches}
-    assert all(topic in demo and topic in staged_run for topic in required_topics)
+    assert not violations
+    assert all(topic in demo for topic in required_topics)
 
 
 def test_runtime_surface_exposes_only_synthetic_input_contract() -> None:

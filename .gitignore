@@ -16,3 +16,21 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# Local development scratch files
+/.tmp/
+/scratch/
+
+# AI-assisted development files
+/.superpowers/
+/AGENTS.md
+/MASTER_IMPLEMENTATION_PLAN.md
+/STAGED_DELIVERY_PLAN.md
+/PROGRESS_TRACKER.md
+/docs/superpowers/
+
+# Local design and generated-content references
+/docs/figma_refs/
+/docs/WEBPAGE_CONTENT_BRIEF.md
+/output/pdf/
+/RAGIntegrity_README.md
