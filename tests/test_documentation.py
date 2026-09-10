@@ -44,8 +44,9 @@ def test_beginner_docs_explain_timestamped_synthetic_run_and_scope() -> None:
     data_card = (ROOT / "reports" / "data_card.md").read_text(encoding="utf-8")
     demo = (ROOT / "demo" / "run_demo.md").read_text(encoding="utf-8")
 
-    assert '$runName = "artifacts/synthetic-run-" + (Get-Date -Format "yyyyMMdd-HHmmss")' in readme
-    assert "python -m cyberattack_detection.reproduce --output $runName" in readme
+    assert "uv run --frozen pytest" in readme
+    assert '$runName = "artifacts/synthetic-run-" + (Get-Date -Format "yyyyMMdd-HHmmss")' in demo
+    assert "python -m cyberattack_detection.reproduce --output" in demo
     assert "synthetic provenance" in data_card.casefold()
     assert "privacy" in data_card.casefold()
     assert "Research Overview" in demo
