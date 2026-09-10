@@ -230,99 +230,16 @@ Generated experiment outputs are written under `artifacts/` and are intentionall
 
 ---
 
-## Installation
+## Operational Constraint Enforcement & Calibration Architecture
 
-### Prerequisites
+In production network security, high false-positive rates induce alert fatigue and operational failure. ThreatShift enforces strict operational bounds:
 
-- Python 3.11 or newer
-- [`uv`](https://docs.astral.sh/uv/)
-- Git
-
-Clone the repository:
-
-```bash
-git clone https://github.com/HasanKhan05/ThreatShift.git
-cd ThreatShift
-```
-
-Install the locked environment, including development/test groups:
-
-```bash
-uv sync --frozen --all-groups
-```
-
----
-
-## Reproduce the Experiment
-
-The canonical reproduction entry point is:
-
-```bash
-uv run --frozen python -m cyberattack_detection.reproduce --output artifacts/canonical-run-1
-```
-
-Experiment output directories are treated as immutable evidence. If `artifacts/canonical-run-1` already exists, choose a new directory instead of overwriting it:
-
-```bash
-uv run --frozen python -m cyberattack_detection.reproduce --output artifacts/reproduction-run
-```
-
-The pipeline regenerates the synthetic data, runs preprocessing, trains/evaluates the configured models, and writes the resulting experiment evidence under the selected output directory.
-
-<details>
-<summary><strong>Why experiment directories are immutable</strong></summary>
-
-Keeping each run in a new directory prevents a later execution from silently replacing the evidence associated with an earlier result. This makes it easier to trace a reported metric back to the configuration and artifacts that produced it.
-
-</details>
-
----
-
-## Run the Streamlit Research Dashboard
-
-The dashboard reads a completed experiment artifact rather than retraining models on page load.
-
-After reproducing the experiment, point `CYBERATTACK_ARTIFACT_ROOT` to the nested primary experiment artifact under:
-
-```text
-artifacts/<run-name>/artifacts/primary-*/
-```
-
-### PowerShell
-
-```powershell
-$run = Get-ChildItem ".\artifacts\canonical-run-1\artifacts" -Directory | Select-Object -First 1
-$env:CYBERATTACK_ARTIFACT_ROOT = $run.FullName
-uv run streamlit run src/app/app.py
-```
-
-Then open:
-
-```text
-http://localhost:8501
-```
-
-The dashboard presents saved experiment evidence; it is not a live network monitor.
-
----
-
-## Run the Static Research Website Locally
-
-The deployed presentation site is a static HTML/CSS/JavaScript application in `docs/`.
-
-```bash
-uv run python -m http.server 8000 --directory docs
-```
-
-Open:
-
-```text
-http://localhost:8000
-```
-
-The hosted version is available at:
-
-**https://hasankhan05.github.io/ThreatShift/**
+- **10% False Positive Rate (FPR) Ceiling:** Classifiers are not ranked by unconstrained AUC or raw accuracy. Instead, detection thresholds are selected exclusively on validation sets to enforce $\text{FPR} \le 0.10$. A model achieving 99% recall at 15% FPR is rejected in favor of a calibrated model achieving 85% recall under the 10% budget.
+- **Platt Probability Calibration:** Logistic regression and neural network output logits are mapped through sigmoid probability calibration:
+  $$P(y=1 | f) = \frac{1}{1 + \exp(A \cdot f + B)}$$
+  Parameters $A$ and $B$ are estimated strictly on validation subsets using maximum likelihood, preventing threshold overfitting to training class distributions.
+- **Temporal Distribution Drift Dynamics:** Traffic periods 1–3 establish the baseline stationary distribution, while periods 4–5 introduce controlled covariate shift (novel flow sizes, altered packet arrival deltas, shifting attack signatures). Models that rely on spurious statistical correlations experience significant recall degradation under temporal holdouts.
+- **Anti-Leakage Feature Exclusion Protocols:** All network identifiers, source/destination IPs, absolute timestamps, port combinations, attack-family labels, capture intervals, and synthetic record ordering are strictly excised prior to vectorization to guarantee models learn physical traffic characteristics rather than artifact identities.
 
 ---
 
